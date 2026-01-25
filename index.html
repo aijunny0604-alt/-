@@ -23,10 +23,20 @@
       }
     </script>
     <style>
-      body {
+      html {
+        scroll-behavior: smooth;
+      }
+      html, body {
         background-color: #fdfbf7;
         color: #1f1f1f;
         overflow-x: hidden;
+        overflow-y: auto;
+        height: auto;
+        min-height: 100%;
+      }
+      /* Smooth scroll with easing */
+      * {
+        scroll-behavior: smooth;
       }
       /* Hide scrollbar for cleaner look */
       ::-webkit-scrollbar {
@@ -41,6 +51,33 @@
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #d4d4d4;
+      }
+      /* Lenis smooth scroll styles */
+      html.lenis, html.lenis body {
+        height: auto;
+      }
+      .lenis.lenis-smooth {
+        scroll-behavior: auto !important;
+      }
+      .lenis.lenis-smooth [data-lenis-prevent] {
+        overscroll-behavior: contain;
+      }
+      .lenis.lenis-stopped {
+        overflow: hidden;
+      }
+      .lenis.lenis-scrolling iframe {
+        pointer-events: none;
+      }
+      /* Text gradient effect */
+      .text-gradient {
+        background: linear-gradient(135deg, #1f1f1f 0%, #666 50%, #1f1f1f 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      /* Keep all text characters */
+      .keep-all {
+        word-break: keep-all;
       }
     </style>
   <script type="importmap">
@@ -58,5 +95,6 @@
 </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>

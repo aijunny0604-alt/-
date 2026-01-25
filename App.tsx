@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
+import Lenis from 'lenis';
 import { PROJECTS as INITIAL_PROJECTS, ABOUT_TEXT, SOCIAL_LINKS, AWARDS as INITIAL_AWARDS, PLAYGROUND_ITEMS as INITIAL_PLAYGROUND } from './constants';
 import { Project, Award, PlaygroundItem } from './types';
 import Hero from './components/Hero';
@@ -7,7 +8,23 @@ import ProjectCard from './components/ProjectCard';
 import ChatWidget from './components/ChatWidget';
 import ProjectDetail from './components/ProjectDetail';
 import AdminModal from './components/AdminModal';
+import CustomCursor from './components/CustomCursor';
+import LoadingScreen from './components/LoadingScreen';
+import MagneticButton from './components/MagneticButton';
 import { ArrowDown, Settings, Trophy, Play, Grid } from 'lucide-react';
+
+// YouTube URL에서 비디오 ID 추출
+const getYouTubeVideoId = (url: string): string | null => {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /youtube\.com\/shorts\/([^&\n?#]+)/
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+};
 
 const App: React.FC = () => {
   const { scrollYProgress } = useScroll();
@@ -19,20 +36,47 @@ const App: React.FC = () => {
 
   const [currentTime, setCurrentTime] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  
+
   // State for editable content
   const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS);
   const [awards, setAwards] = useState<Award[]>(INITIAL_AWARDS);
   const [playground, setPlayground] = useState<PlaygroundItem[]>(INITIAL_PLAYGROUND);
-  
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
 
-  // Load from LocalStorage on mount
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const lenisRef = useRef<Lenis | null>(null);
+
+  // Initialize Lenis smooth scroll
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      touchMultiplier: 2,
+    });
+
+    lenisRef.current = lenis;
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
+  // localStorage에서 데이터 불러오기 (관리자 페이지 수정사항 유지)
   useEffect(() => {
     const savedProjects = localStorage.getItem('portfolio_projects');
     const savedAwards = localStorage.getItem('portfolio_awards');
     const savedPlayground = localStorage.getItem('portfolio_playground');
-    
+
     if (savedProjects) {
       try { setProjects(JSON.parse(savedProjects)); } catch (e) { console.error(e); }
     }
@@ -40,9 +84,9 @@ const App: React.FC = () => {
       try { setAwards(JSON.parse(savedAwards)); } catch (e) { console.error(e); }
     }
     if (savedPlayground) {
-        try { setPlayground(JSON.parse(savedPlayground)); } catch (e) { console.error(e); }
+      try { setPlayground(JSON.parse(savedPlayground)); } catch (e) { console.error(e); }
     }
-    
+
     const timer = setInterval(() => {
       const date = new Date();
       setCurrentTime(date.toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit' }));
@@ -68,15 +112,34 @@ const App: React.FC = () => {
   };
 
   const handleSavePlayground = (newItems: PlaygroundItem[]) => {
-      setPlayground(newItems);
-      localStorage.setItem('portfolio_playground', JSON.stringify(newItems));
+    setPlayground(newItems);
+    localStorage.setItem('portfolio_playground', JSON.stringify(newItems));
+  };
+
+  // 데이터 초기화 함수 (constants.ts로 리셋)
+  const handleResetToDefaults = () => {
+    localStorage.removeItem('portfolio_projects');
+    localStorage.removeItem('portfolio_awards');
+    localStorage.removeItem('portfolio_playground');
+    setProjects(INITIAL_PROJECTS);
+    setAwards(INITIAL_AWARDS);
+    setPlayground(INITIAL_PLAYGROUND);
   };
 
   return (
-    <div className="relative min-h-screen bg-neutral-100 selection:bg-neutral-900 selection:text-white">
+    <>
+      {/* Loading Screen */}
+      <AnimatePresence>
+        {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
+      </AnimatePresence>
+
+      {/* Custom Cursor */}
+      <CustomCursor />
+
+      <div className="relative min-h-screen bg-neutral-100 selection:bg-neutral-900 selection:text-white">
       {/* Noise Texture Overlay */}
-      <div 
-        className="fixed inset-0 pointer-events-none z-[9999] opacity-[0.03] mix-blend-overlay"
+      <div
+        className="fixed inset-0 pointer-events-none z-[100] opacity-[0.03] mix-blend-overlay"
         style={{
            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
         }}
@@ -179,14 +242,24 @@ const App: React.FC = () => {
                  >
                     <div className="relative aspect-video bg-neutral-800 rounded-sm overflow-hidden shadow-2xl group">
                       {award.video ? (
-                         <video 
-                           src={award.video}
-                           autoPlay 
-                           muted 
-                           loop 
-                           playsInline
-                           className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
-                         />
+                         getYouTubeVideoId(award.video) ? (
+                           <iframe
+                             src={`https://www.youtube.com/embed/${getYouTubeVideoId(award.video)}?autoplay=1&mute=1&loop=1&playlist=${getYouTubeVideoId(award.video)}&controls=0&showinfo=0&rel=0`}
+                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                             allowFullScreen
+                             className="w-full h-full object-cover"
+                             style={{ border: 'none' }}
+                           />
+                         ) : (
+                           <video
+                             src={award.video}
+                             autoPlay
+                             muted
+                             loop
+                             playsInline
+                             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
+                           />
+                         )
                       ) : (
                          <div className="w-full h-full flex items-center justify-center text-neutral-500 border border-neutral-700">No Media</div>
                       )}
@@ -315,8 +388,8 @@ const App: React.FC = () => {
                  hello@portfolio.dev
                </a>
                <div className="mt-10 md:mt-0 flex flex-col items-end">
-                 <button 
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                 <button
+                    onClick={() => lenisRef.current?.scrollTo(0, { duration: 2 })}
                     className="group flex items-center gap-2 text-sm uppercase tracking-widest hover:text-neutral-400 transition-colors cursor-pointer"
                  >
                    맨 위로
@@ -351,8 +424,8 @@ const App: React.FC = () => {
       </button>
 
       {/* Admin Modal */}
-      <AdminModal 
-        isOpen={isAdminOpen} 
+      <AdminModal
+        isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
         projects={projects}
         onSave={handleSaveProjects}
@@ -360,8 +433,10 @@ const App: React.FC = () => {
         onSaveAwards={handleSaveAwards}
         playground={playground}
         onSavePlayground={handleSavePlayground}
+        onReset={handleResetToDefaults}
       />
-    </div>
+      </div>
+    </>
   );
 };
 

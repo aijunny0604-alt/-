@@ -11,9 +11,10 @@ interface ProjectDetailProps {
 const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onClose }) => {
   // Lock body scroll when open
   useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = originalOverflow || '';
     };
   }, []);
 
@@ -42,7 +43,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onClose }) => {
       animate={{ y: 0 }}
       exit={{ y: "100%" }}
       transition={{ type: "tween", ease: [0.33, 1, 0.68, 1], duration: 0.6 }}
-      className="fixed inset-0 z-[60] bg-cream overflow-y-auto"
+      className="fixed inset-0 z-[60] bg-cream overflow-y-auto overscroll-contain"
+      data-lenis-prevent
     >
       {/* Close Button */}
       <button

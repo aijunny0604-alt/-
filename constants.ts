@@ -1,79 +1,76 @@
 import { Project, Award, PlaygroundItem } from './types';
 
 export const HERO_TEXT = {
-  line1: "JIWOO",
-  line2: "PARK",
-  sub: "서울을 기반으로 활동하는 크리에이티브 개발자입니다. 심미성과 기능성을 결합하여 기억에 남는 디지털 경험을 만듭니다."
+  line1: "YEONG JUN",
+  line2: "LEE",
+  sub: "순간을 포착하고, 감동을 편집합니다. 사진과 영상으로 당신의 이야기를 전달하는 크리에이터입니다."
 };
 
 // [안내] 내 사진과 영상을 올리는 방법:
-// 1. 프로젝트 폴더 내 'public' 등의 폴더에 이미지/영상을 넣으세요.
-// 2. 아래 image: 부분의 주소를 내 파일 경로(예: '/images/my-work.jpg')로 수정하세요.
-// 3. 또는 구글 드라이브나 클라우드에 있는 'https://...' 형태의 웹 주소를 그대로 넣어도 됩니다.
+// 1. 아래 image: 부분에 Flickr, YouTube 등의 URL을 직접 입력하세요.
+// 2. 또는 public/images 폴더에 파일을 넣고 '/images/파일명.jpg' 형태로 입력하세요.
 
 export const PROJECTS: Project[] = [
   {
     id: '1',
-    title: 'Ethereal Commerce',
-    category: '웹 디자인 & 개발',
+    title: 'Dynamic Moments',
+    category: '포토그래피',
     year: '2024',
-    // [수정] 메인 썸네일 이미지 경로
-    image: 'https://picsum.photos/800/600?random=1',
-    // [수정] 마우스 오버 시 재생될 영상 경로 (영상이 없으면 이 줄을 지우거나 undefined로 두세요)
-    video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    description: '부드러운 화면 전환과 마이크로 인터랙션에 중점을 둔 헤드리스 쇼피파이(Headless Shopify) 커머스 사이트입니다.',
-    tags: ['React', 'Shopify Storefront API', 'WebGL', 'GSAP'],
-    // [수정] 상세 페이지 갤러리 (type을 'image' 또는 'video'로 지정하고 url을 넣으세요)
+    image: 'https://picsum.photos/800/600?random=1',  // [TODO] 드리프트 사진 URL
+    // video: '',  // 호버 시 재생할 영상 (선택사항)
+    description: '속도와 역동성을 담은 자동차 포토그래피. 드리프트의 긴장감과 아드레날린을 한 장의 사진에 담았습니다.',
+    tags: ['Automotive', 'Action', 'Drift', 'Sports'],
     gallery: [
+      // [TODO] 갤러리 이미지/영상 URL 추가
       { type: 'image', url: 'https://picsum.photos/800/600?random=10' },
-      { type: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4' },
       { type: 'image', url: 'https://picsum.photos/800/800?random=11' },
       { type: 'image', url: 'https://picsum.photos/800/500?random=12' }
     ]
   },
   {
     id: '2',
-    title: 'Lumina Branding',
-    category: '브랜드 아이덴티티',
-    year: '2023',
-    image: 'https://picsum.photos/800/800?random=2', 
-    video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    description: '친환경 조명 스타트업을 위한 전체적인 비주얼 아이덴티티 리뉴얼 프로젝트입니다.',
-    tags: ['Brand Strategy', 'Typography', '3D Rendering'],
+    title: 'Product Showcase',
+    category: '제품 촬영',
+    year: '2024',
+    image: 'https://picsum.photos/800/800?random=2',  // [TODO] 제품 사진 URL
+    description: '제품의 디테일과 질감을 극대화하는 상업 사진. 자동차 파츠부터 다양한 제품까지, 판매를 이끄는 이미지를 만듭니다.',
+    tags: ['Commercial', 'Product', 'Lighting', 'Detail'],
     gallery: [
+      // [TODO] 갤러리 이미지 URL 추가
       { type: 'image', url: 'https://picsum.photos/800/800?random=20' },
-      { type: 'image', url: 'https://picsum.photos/800/1200?random=21' },
-      { type: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4' }
+      { type: 'image', url: 'https://picsum.photos/800/600?random=21' },
+      { type: 'image', url: 'https://picsum.photos/600/800?random=22' }
     ]
   },
   {
     id: '3',
-    title: 'Kinetic Type',
-    category: '모션 그래픽',
-    year: '2023',
-    image: 'https://picsum.photos/600/800?random=3',
-    // video 속성이 없으면 이미지만 확대되는 인터랙션이 적용됩니다.
-    description: '3D 공간에서의 가독성을 탐구한 실험적인 타이포그래피 프로젝트입니다.',
-    tags: ['After Effects', 'Cinema 4D', 'p5.js'],
+    title: 'Cinematic Films',
+    category: '영상 편집',
+    year: '2024',
+    image: 'https://picsum.photos/800/500?random=3',  // [TODO] 영상 썸네일 URL
+    // video: '',  // [TODO] YouTube URL 또는 영상 파일
+    description: '자동차의 역동적인 움직임부터 웨딩의 감동적인 순간까지. 다양한 장르를 아우르는 시네마틱 영상 편집.',
+    tags: ['Cinematic', 'Wedding', 'Automotive', 'Color Grading'],
     gallery: [
-      { type: 'image', url: 'https://picsum.photos/600/800?random=30' },
-      { type: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4' },
-      { type: 'image', url: 'https://picsum.photos/600/400?random=31' }
+      // [TODO] YouTube 영상이나 이미지 URL 추가
+      { type: 'video', url: 'https://www.youtube.com/watch?v=YOUR_VIDEO_ID' },
+      { type: 'image', url: 'https://picsum.photos/800/450?random=30' },
+      { type: 'image', url: 'https://picsum.photos/800/450?random=31' }
     ]
   },
   {
     id: '4',
-    title: 'Orbit Dashboard',
-    category: '프로덕트 디자인',
+    title: 'AI Creations',
+    category: 'AI 아트워크',
     year: '2024',
-    image: 'https://picsum.photos/800/500?random=4',
-    video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-    description: '위성 추적 시스템을 위한 데이터 시각화 대시보드 플랫폼입니다.',
-    tags: ['Figma', 'React', 'D3.js', 'Tailwind CSS'],
+    image: 'https://picsum.photos/800/800?random=4',  // [TODO] AI 이미지 URL
+    description: 'AI 기술을 활용한 창의적인 이미지 생성. 상상력의 한계를 넘어서는 새로운 비주얼 아트.',
+    tags: ['AI Art', 'Generative', 'Creative', 'Digital Art'],
     gallery: [
-      { type: 'image', url: 'https://picsum.photos/800/500?random=40' },
-      { type: 'image', url: 'https://picsum.photos/800/500?random=41' },
-      { type: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4' }
+      // [TODO] AI 생성 이미지 URL 추가
+      { type: 'image', url: 'https://picsum.photos/800/800?random=40' },
+      { type: 'image', url: 'https://picsum.photos/600/800?random=41' },
+      { type: 'image', url: 'https://picsum.photos/800/600?random=42' }
     ]
   }
 ];
@@ -81,33 +78,30 @@ export const PROJECTS: Project[] = [
 export const AWARDS: Award[] = [
   {
     year: '2024',
-    title: 'Generative AI Innovation Challenge',
-    organization: 'Samsung Electronics',
-    result: 'Grand Prize (대상)',
-    // [수정] 수상작 영상 경로를 여기에 입력하세요.
-    video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-    description: '생성형 AI 모델을 활용하여 사용자의 감정을 실시간으로 시각화하는 인터랙티브 아트워크입니다. 기술적 혁신성과 예술적 표현력의 조화를 높이 평가받아 대상을 수상했습니다.'
+    title: '매경미디어 AI 영상 광고·숏폼 공모전',
+    organization: '매일경제',
+    result: '우수상',
+    video: 'https://youtu.be/m-AkFwNKQ0g',
+    description: 'AI 기술을 활용하여 제작한 영상 광고로 우수상을 수상했습니다. 창의적인 스토리텔링과 AI 영상 편집 기술의 조화를 높이 평가받았습니다.'
   }
 ];
 
-// [추가] Playground (아카이브) 데이터
 export const PLAYGROUND_ITEMS: PlaygroundItem[] = [
-  { id: '1', type: 'image', url: 'https://picsum.photos/600/800?random=100', caption: 'Daily Render 001' },
-  { id: '2', type: 'image', url: 'https://picsum.photos/800/600?random=101', caption: 'UI Concept' },
-  { id: '3', type: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', caption: 'Motion Study' },
-  { id: '4', type: 'image', url: 'https://picsum.photos/600/600?random=102', caption: 'Texture Experiment' },
-  { id: '5', type: 'image', url: 'https://picsum.photos/800/1000?random=103', caption: 'Poster Design' },
+  // [TODO] 추가 작업물이나 실험적인 이미지들
+  { id: '1', type: 'image', url: 'https://picsum.photos/600/800?random=100', caption: 'Behind the Scenes' },
+  { id: '2', type: 'image', url: 'https://picsum.photos/800/600?random=101', caption: 'Test Shot' },
+  { id: '3', type: 'image', url: 'https://picsum.photos/600/600?random=102', caption: 'Color Study' },
 ];
 
 export const ABOUT_TEXT = `
-  저는 미니멀리즘과 인터랙티브 디자인에 열정을 가진 크리에이티브 개발자입니다. 
-  좋은 디자인이란 보이지 않으면서도 자연스럽게 작동하는 것이라고 믿습니다. 
-  기술적 정교함과 예술적 감각을 결합하여 사용자에게 오래 기억될 수 있는 디지털 서사를 만들어냅니다.
+  순간의 감정과 움직임을 포착하는 포토그래퍼이자 영상 에디터입니다.
+  자동차의 역동적인 순간부터 웨딩의 감동적인 장면까지,
+  다양한 장르를 넘나들며 당신만의 이야기를 만들어드립니다.
 `;
 
 export const SOCIAL_LINKS = [
   { name: 'Instagram', url: '#' },
-  { name: 'LinkedIn', url: '#' },
-  { name: 'Twitter', url: '#' },
-  { name: 'GitHub', url: '#' },
+  { name: 'YouTube', url: '#' },
+  { name: 'Flickr', url: '#' },
+  { name: 'Contact', url: '#' },
 ];

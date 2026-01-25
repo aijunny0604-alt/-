@@ -12,6 +12,7 @@ interface AdminModalProps {
   onSaveAwards: (awards: Award[]) => void;
   playground?: PlaygroundItem[];
   onSavePlayground?: (items: PlaygroundItem[]) => void;
+  onReset?: () => void;
 }
 
 // Helper type to track which field triggered the upload
@@ -21,25 +22,33 @@ type UploadTarget =
   | { type: 'award'; index: number; field: keyof Award }
   | { type: 'playground'; index: number; field: keyof PlaygroundItem };
 
-const AdminModal: React.FC<AdminModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  projects, 
-  onSave, 
-  awards, 
+const AdminModal: React.FC<AdminModalProps> = ({
+  isOpen,
+  onClose,
+  projects,
+  onSave,
+  awards,
   onSaveAwards,
   playground = [],
-  onSavePlayground
+  onSavePlayground,
+  onReset
 }) => {
   const [activeTab, setActiveTab] = useState<'projects' | 'awards' | 'playground'>('projects');
-  
+
   const [editingProjects, setEditingProjects] = useState<Project[]>(projects);
   const [editingAwards, setEditingAwards] = useState<Award[]>(awards);
   const [editingPlayground, setEditingPlayground] = useState<PlaygroundItem[]>(playground);
-  
+
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(projects[0]?.id || null);
   const [showExport, setShowExport] = useState(false);
-  
+
+  // props 변경 시 내부 상태 동기화
+  React.useEffect(() => {
+    setEditingProjects(projects);
+    setEditingAwards(awards);
+    setEditingPlayground(playground);
+  }, [projects, awards, playground]);
+
   // File Upload State
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadTarget, setUploadTarget] = useState<UploadTarget | null>(null);
@@ -149,33 +158,30 @@ const AdminModal: React.FC<AdminModalProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Decide how to handle the file based on type
     const isVideo = file.type.startsWith('video/');
-    
-    // For videos, always use Object URL for performance (prevent hanging)
-    // For images, small ones can be Base64, large ones Object URL.
-    // For simplicity in this demo, we'll use Object URL for videos to allow instant preview of large files.
-    // Note: Object URLs are temporary for the session.
-    
-    if (isVideo || file.size > 2 * 1024 * 1024) {
-       // Use Object URL for large files/videos
-       const objectUrl = URL.createObjectURL(file);
-       applyFileUrl(objectUrl);
-       // Alert user about session persistence only
-       if (isVideo) {
-         // console.log("Video loaded as Blob URL");
-       }
-    } else {
-       // Use FileReader (Base64) for smaller images to try and persist in LocalStorage
-       const reader = new FileReader();
-       reader.onload = (event) => {
-         const result = event.target?.result as string;
-         applyFileUrl(result);
-       };
-       reader.readAsDataURL(file);
+    const maxSize = 10 * 1024 * 1024; // 10MB
+
+    if (isVideo) {
+      // 영상은 YouTube URL 사용 권장
+      alert('영상 파일은 저장되지 않습니다.\nYouTube URL을 직접 입력해주세요.');
+      e.target.value = '';
+      return;
     }
-    
-    // Reset input
+
+    if (file.size > maxSize) {
+      alert('파일이 너무 큽니다 (최대 10MB).\n외부 이미지 호스팅 서비스(Flickr, Imgur 등)의 URL을 사용해주세요.');
+      e.target.value = '';
+      return;
+    }
+
+    // 이미지를 Base64로 변환하여 저장 (localStorage에 영구 저장됨)
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      applyFileUrl(result);
+    };
+    reader.readAsDataURL(file);
+
     e.target.value = '';
   };
 
@@ -278,6 +284,7 @@ const AdminModal: React.FC<AdminModalProps> = ({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
             className="bg-white w-full max-w-6xl h-[90vh] rounded-xl shadow-2xl flex overflow-hidden font-sans"
+            data-lenis-prevent
           >
             {/* Sidebar List */}
             <div className="w-64 bg-neutral-100 border-r border-neutral-200 flex flex-col">
@@ -385,6 +392,19 @@ const AdminModal: React.FC<AdminModalProps> = ({
                   <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 text-sm font-medium transition-colors">
                     <Code className="w-4 h-4" /> 코드 내보내기
                   </button>
+                  {onReset && (
+                    <button
+                      onClick={() => {
+                        if (confirm('모든 데이터를 기본값으로 초기화하시겠습니까?')) {
+                          onReset();
+                          onClose();
+                        }
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 text-sm font-medium transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" /> 초기화
+                    </button>
+                  )}
                   <button onClick={handleSave} className="flex items-center gap-2 px-4 py-2 bg-neutral-900 text-white rounded-md hover:bg-neutral-700 text-sm font-medium transition-colors">
                     <Save className="w-4 h-4" /> 저장하기
                   </button>
