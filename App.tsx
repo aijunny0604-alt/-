@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
-import { PROJECTS as INITIAL_PROJECTS, ABOUT_TEXT, SOCIAL_LINKS, AWARDS } from './constants';
-import { Project } from './types';
+import { PROJECTS as INITIAL_PROJECTS, ABOUT_TEXT, SOCIAL_LINKS, AWARDS as INITIAL_AWARDS, PLAYGROUND_ITEMS as INITIAL_PLAYGROUND } from './constants';
+import { Project, Award, PlaygroundItem } from './types';
 import Hero from './components/Hero';
 import ProjectCard from './components/ProjectCard';
 import ChatWidget from './components/ChatWidget';
 import ProjectDetail from './components/ProjectDetail';
 import AdminModal from './components/AdminModal';
-import { ArrowDown, Settings, Trophy } from 'lucide-react';
+import { ArrowDown, Settings, Trophy, Play, Grid } from 'lucide-react';
 
 const App: React.FC = () => {
   const { scrollYProgress } = useScroll();
@@ -20,19 +20,27 @@ const App: React.FC = () => {
   const [currentTime, setCurrentTime] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   
-  // State for editable projects
+  // State for editable content
   const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS);
+  const [awards, setAwards] = useState<Award[]>(INITIAL_AWARDS);
+  const [playground, setPlayground] = useState<PlaygroundItem[]>(INITIAL_PLAYGROUND);
+  
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
-  // Load from LocalStorage on mount to persist changes locally
+  // Load from LocalStorage on mount
   useEffect(() => {
     const savedProjects = localStorage.getItem('portfolio_projects');
+    const savedAwards = localStorage.getItem('portfolio_awards');
+    const savedPlayground = localStorage.getItem('portfolio_playground');
+    
     if (savedProjects) {
-      try {
-        setProjects(JSON.parse(savedProjects));
-      } catch (e) {
-        console.error("Failed to load saved projects", e);
-      }
+      try { setProjects(JSON.parse(savedProjects)); } catch (e) { console.error(e); }
+    }
+    if (savedAwards) {
+      try { setAwards(JSON.parse(savedAwards)); } catch (e) { console.error(e); }
+    }
+    if (savedPlayground) {
+        try { setPlayground(JSON.parse(savedPlayground)); } catch (e) { console.error(e); }
     }
     
     const timer = setInterval(() => {
@@ -54,8 +62,18 @@ const App: React.FC = () => {
     }
   };
 
+  const handleSaveAwards = (newAwards: Award[]) => {
+    setAwards(newAwards);
+    localStorage.setItem('portfolio_awards', JSON.stringify(newAwards));
+  };
+
+  const handleSavePlayground = (newItems: PlaygroundItem[]) => {
+      setPlayground(newItems);
+      localStorage.setItem('portfolio_playground', JSON.stringify(newItems));
+  };
+
   return (
-    <div className="relative min-h-screen bg-cream selection:bg-neutral-900 selection:text-white">
+    <div className="relative min-h-screen bg-neutral-100 selection:bg-neutral-900 selection:text-white">
       {/* Noise Texture Overlay */}
       <div 
         className="fixed inset-0 pointer-events-none z-[9999] opacity-[0.03] mix-blend-overlay"
@@ -84,11 +102,47 @@ const App: React.FC = () => {
       <main className="pb-20">
         <Hero />
 
-        {/* Selected Works - Added Z-index and background to cover Hero when scrolling up */}
-        <section id="work" className="relative z-10 bg-cream px-6 md:px-20 py-20 min-h-screen rounded-t-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.05)] mt-[100vh]">
-          <div className="flex justify-between items-end mb-24 border-b border-neutral-900 pb-4">
-            <h2 className="text-4xl md:text-8xl font-serif text-neutral-900">Selected Works</h2>
-            <span className="text-sm font-mono text-neutral-500 hidden md:block">(2023 — 2025)</span>
+        {/* 
+          Selected Works - Luxurious Overlay Style 
+          - mt-[100vh] creates space for the fixed hero
+          - negative margin top pulls it up slightly
+          - Deep shadow and rounded corners create the "Card/Sheet" effect
+        */}
+        <section 
+          id="work" 
+          className="relative z-10 bg-cream/95 backdrop-blur-xl px-6 md:px-20 pt-20 pb-32 min-h-screen rounded-t-[3rem] md:rounded-t-[5rem] shadow-[0_-30px_60px_rgba(0,0,0,0.15)] border-t border-white/40 mt-[100vh]"
+        >
+          {/* Visual Handle for "Sheet" metaphor */}
+          <div className="absolute top-8 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-neutral-200/80 rounded-full" />
+
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-32 pt-10 border-b border-neutral-200/50 pb-8">
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            >
+               <span className="block text-xs font-mono uppercase tracking-widest text-neutral-500 mb-4">
+                 Featured Projects
+               </span>
+               <h2 className="text-5xl md:text-9xl font-serif text-neutral-900 leading-[0.8]">
+                 Selected<br />Works
+               </h2>
+            </motion.div>
+            
+            <motion.div 
+               initial={{ opacity: 0 }}
+               whileInView={{ opacity: 1 }}
+               transition={{ delay: 0.4, duration: 0.8 }}
+               className="mt-8 md:mt-0"
+            >
+              <span className="text-sm font-mono text-neutral-500 block text-right">
+                (2023 — 2025)
+              </span>
+              <span className="text-sm font-mono text-neutral-400 block text-right mt-1">
+                Scroll Down ↓
+              </span>
+            </motion.div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-32">
@@ -104,45 +158,123 @@ const App: React.FC = () => {
           </div>
         </section>
 
-        {/* Honors & Awards Section */}
-        <section id="awards" className="relative z-10 bg-cream px-6 md:px-20 py-20 border-t border-neutral-200">
-           <div className="flex flex-col md:flex-row gap-10 md:gap-20">
-             <div className="md:w-1/3">
-                <div className="flex items-center gap-3 mb-6">
-                  <Trophy className="w-6 h-6 text-neutral-400" />
-                  <h2 className="text-4xl md:text-6xl font-serif text-neutral-900">Honors</h2>
-                </div>
-                <p className="text-neutral-500 text-sm leading-relaxed mb-8">
-                  기술과 예술의 경계에서 시도한 다양한 실험과 도전들이<br className="hidden md:block" /> 
-                  값진 결과로 인정받았습니다.
-                </p>
+        {/* Honors & Awards Section - Exhibition Style */}
+        <section id="awards" className="relative z-10 bg-neutral-900 text-white px-6 md:px-20 py-32 rounded-t-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)]">
+           <div className="max-w-7xl mx-auto">
+             <div className="flex items-end gap-4 mb-20">
+                <Trophy className="w-8 h-8 md:w-12 md:h-12 text-yellow-500 mb-2" />
+                <h2 className="text-4xl md:text-8xl font-serif leading-none">Honor</h2>
              </div>
-             
-             <div className="md:w-2/3 space-y-2">
-               {AWARDS.map((award, idx) => (
+
+             {awards.map((award, idx) => (
+               <div key={idx} className="flex flex-col md:flex-row gap-10 md:gap-20 items-stretch">
+                 
+                 {/* Video Display Column */}
                  <motion.div 
-                   initial={{ opacity: 0, x: -20 }}
-                   whileInView={{ opacity: 1, x: 0 }}
-                   transition={{ delay: idx * 0.1 }}
+                   initial={{ opacity: 0, y: 50 }}
+                   whileInView={{ opacity: 1, y: 0 }}
                    viewport={{ once: true }}
-                   key={idx} 
-                   className="group border-b border-neutral-200 py-8 flex flex-col md:flex-row md:items-baseline justify-between hover:bg-neutral-50 hover:px-6 -mx-6 px-6 transition-all duration-300 rounded-lg cursor-default"
+                   transition={{ duration: 0.8 }}
+                   className="w-full md:w-3/5"
                  >
-                    <div className="mb-2 md:mb-0">
-                      <span className="block text-xs font-mono text-neutral-400 mb-2">{award.year} — {award.organization}</span>
-                      <h3 className="text-xl md:text-3xl font-serif text-neutral-800 group-hover:text-neutral-900 transition-colors">
-                        {award.title}
-                      </h3>
-                    </div>
-                    <div className="text-right mt-4 md:mt-0">
-                       <span className="inline-block px-4 py-1.5 bg-neutral-100 rounded-full text-xs font-bold uppercase tracking-wider text-neutral-600 group-hover:bg-neutral-900 group-hover:text-white transition-all shadow-sm">
-                         {award.result}
-                       </span>
+                    <div className="relative aspect-video bg-neutral-800 rounded-sm overflow-hidden shadow-2xl group">
+                      {award.video ? (
+                         <video 
+                           src={award.video}
+                           autoPlay 
+                           muted 
+                           loop 
+                           playsInline
+                           className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
+                         />
+                      ) : (
+                         <div className="w-full h-full flex items-center justify-center text-neutral-500 border border-neutral-700">No Media</div>
+                      )}
+                      
+                      {/* Floating Badge */}
+                      <div className="absolute top-0 left-0 bg-white text-neutral-900 px-6 py-3">
+                         <span className="font-bold text-sm tracking-widest uppercase">{award.result}</span>
+                      </div>
                     </div>
                  </motion.div>
-               ))}
-             </div>
+
+                 {/* Text Info Column */}
+                 <motion.div 
+                   initial={{ opacity: 0, x: 50 }}
+                   whileInView={{ opacity: 1, x: 0 }}
+                   viewport={{ once: true }}
+                   transition={{ duration: 0.8, delay: 0.2 }}
+                   className="w-full md:w-2/5 flex flex-col justify-center"
+                 >
+                    <div className="mb-8">
+                      <span className="inline-block px-3 py-1 border border-white/30 rounded-full text-xs font-mono mb-4 text-neutral-300">
+                        {award.year} — {award.organization}
+                      </span>
+                      <h3 className="text-3xl md:text-5xl font-serif leading-tight mb-6">
+                        {award.title}
+                      </h3>
+                      <div className="w-12 h-0.5 bg-yellow-500 mb-6"></div>
+                      <p className="text-neutral-400 leading-relaxed text-lg keep-all">
+                        {award.description}
+                      </p>
+                    </div>
+                 </motion.div>
+               </div>
+             ))}
            </div>
+        </section>
+        
+        {/* Playground / Archive Section */}
+        <section id="playground" className="relative z-10 bg-cream px-6 md:px-20 py-32 border-t border-neutral-200">
+            <div className="flex justify-between items-end mb-16">
+               <div>
+                  <h2 className="text-3xl md:text-6xl font-serif text-neutral-900 mb-4">Playground</h2>
+                  <p className="text-neutral-500 text-sm md:text-base font-sans max-w-md">
+                    실험적인 작업물, 모션 그래픽 스터디, 그리고 일상의 영감들을 모아둔 아카이브입니다.
+                  </p>
+               </div>
+               <Grid className="w-6 h-6 md:w-8 md:h-8 text-neutral-300" />
+            </div>
+            
+            <div className="columns-1 md:columns-3 gap-8 space-y-8">
+              {playground.map((item) => (
+                <motion.div 
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="break-inside-avoid relative group"
+                >
+                   <div className="bg-neutral-100 rounded overflow-hidden">
+                      {item.type === 'video' ? (
+                        <video 
+                          src={item.url} 
+                          autoPlay 
+                          muted 
+                          loop 
+                          playsInline
+                          className="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
+                        />
+                      ) : (
+                        <img 
+                          src={item.url} 
+                          alt={item.caption}
+                          className="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-500 hover:scale-105 transform" 
+                        />
+                      )}
+                      
+                      {/* Hover Overlay */}
+                      {item.caption && (
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+                           <span className="text-white text-xs font-mono uppercase tracking-widest bg-black/50 px-3 py-1 backdrop-blur-md rounded-full">
+                             {item.caption}
+                           </span>
+                        </div>
+                      )}
+                   </div>
+                </motion.div>
+              ))}
+            </div>
         </section>
 
         {/* About Section */}
@@ -224,6 +356,10 @@ const App: React.FC = () => {
         onClose={() => setIsAdminOpen(false)}
         projects={projects}
         onSave={handleSaveProjects}
+        awards={awards}
+        onSaveAwards={handleSaveAwards}
+        playground={playground}
+        onSavePlayground={handleSavePlayground}
       />
     </div>
   );

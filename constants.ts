@@ -1,4 +1,4 @@
-import { Project, Award } from './types';
+import { Project, Award, PlaygroundItem } from './types';
 
 export const HERO_TEXT = {
   line1: "JIWOO",
@@ -83,8 +83,20 @@ export const AWARDS: Award[] = [
     year: '2024',
     title: 'Generative AI Innovation Challenge',
     organization: 'Samsung Electronics',
-    result: 'Grand Prize (대상)'
+    result: 'Grand Prize (대상)',
+    // [수정] 수상작 영상 경로를 여기에 입력하세요.
+    video: 'https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    description: '생성형 AI 모델을 활용하여 사용자의 감정을 실시간으로 시각화하는 인터랙티브 아트워크입니다. 기술적 혁신성과 예술적 표현력의 조화를 높이 평가받아 대상을 수상했습니다.'
   }
+];
+
+// [추가] Playground (아카이브) 데이터
+export const PLAYGROUND_ITEMS: PlaygroundItem[] = [
+  { id: '1', type: 'image', url: 'https://picsum.photos/600/800?random=100', caption: 'Daily Render 001' },
+  { id: '2', type: 'image', url: 'https://picsum.photos/800/600?random=101', caption: 'UI Concept' },
+  { id: '3', type: 'video', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', caption: 'Motion Study' },
+  { id: '4', type: 'image', url: 'https://picsum.photos/600/600?random=102', caption: 'Texture Experiment' },
+  { id: '5', type: 'image', url: 'https://picsum.photos/800/1000?random=103', caption: 'Poster Design' },
 ];
 
 export const ABOUT_TEXT = `

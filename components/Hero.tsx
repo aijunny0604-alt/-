@@ -10,14 +10,16 @@ const Hero: React.FC = () => {
   const x1 = useTransform(scrollY, [0, 500], [0, -100]);
   const x2 = useTransform(scrollY, [0, 500], [0, 100]);
   
-  // Fade out and scale down slightly
-  const opacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const scale = useTransform(scrollY, [0, 400], [1, 0.95]);
+  // Fade out slower so it's visible behind the overlay initially
+  // Scale down slightly to create depth
+  const opacity = useTransform(scrollY, [0, 600], [1, 0]);
+  const scale = useTransform(scrollY, [0, 600], [1, 0.9]);
+  const filter = useTransform(scrollY, [0, 400], ["blur(0px)", "blur(8px)"]);
 
   return (
     <motion.section 
-      style={{ opacity, scale }}
-      className="h-screen flex flex-col justify-center px-6 md:px-20 pt-20 sticky top-0 z-0"
+      style={{ opacity, scale, filter }}
+      className="h-screen flex flex-col justify-center px-6 md:px-20 pt-20 fixed top-0 left-0 right-0 z-0 will-change-transform"
     >
       <div className="overflow-hidden">
         <motion.h1 

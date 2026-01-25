@@ -20,6 +20,15 @@ export interface Award {
   title: string;
   organization: string;
   result: string;
+  video?: string;      // Added for exhibition display
+  description?: string; // Added for exhibition display
+}
+
+export interface PlaygroundItem {
+  id: string;
+  type: 'image' | 'video';
+  url: string;
+  caption?: string; // Optional caption
 }
 
 export interface ChatMessage {
