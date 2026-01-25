@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
 import Lenis from 'lenis';
-import { PROJECTS as INITIAL_PROJECTS, ABOUT_TEXT, SOCIAL_LINKS, AWARDS as INITIAL_AWARDS, PLAYGROUND_ITEMS as INITIAL_PLAYGROUND } from './constants';
-import { Project, Award, PlaygroundItem } from './types';
+import { PROJECTS as INITIAL_PROJECTS, ABOUT_TEXT, SOCIAL_LINKS, AWARDS as INITIAL_AWARDS, PLAYGROUND_ITEMS as INITIAL_PLAYGROUND, DESIGN_ITEMS as INITIAL_DESIGN } from './constants';
+import { Project, Award, PlaygroundItem, DesignItem } from './types';
 import Hero from './components/Hero';
 import ProjectCard from './components/ProjectCard';
 import ChatWidget from './components/ChatWidget';
 import ProjectDetail from './components/ProjectDetail';
+import DesignSection from './components/DesignSection';
 import AdminModal from './components/AdminModal';
 import CustomCursor from './components/CustomCursor';
 import LoadingScreen from './components/LoadingScreen';
@@ -41,6 +42,7 @@ const App: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS);
   const [awards, setAwards] = useState<Award[]>(INITIAL_AWARDS);
   const [playground, setPlayground] = useState<PlaygroundItem[]>(INITIAL_PLAYGROUND);
+  const [designItems, setDesignItems] = useState<DesignItem[]>(INITIAL_DESIGN);
 
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,6 +78,7 @@ const App: React.FC = () => {
     const savedProjects = localStorage.getItem('portfolio_projects');
     const savedAwards = localStorage.getItem('portfolio_awards');
     const savedPlayground = localStorage.getItem('portfolio_playground');
+    const savedDesign = localStorage.getItem('portfolio_design');
 
     if (savedProjects) {
       try { setProjects(JSON.parse(savedProjects)); } catch (e) { console.error(e); }
@@ -85,6 +88,9 @@ const App: React.FC = () => {
     }
     if (savedPlayground) {
       try { setPlayground(JSON.parse(savedPlayground)); } catch (e) { console.error(e); }
+    }
+    if (savedDesign) {
+      try { setDesignItems(JSON.parse(savedDesign)); } catch (e) { console.error(e); }
     }
 
     const timer = setInterval(() => {
@@ -99,7 +105,13 @@ const App: React.FC = () => {
 
   const handleSaveProjects = (newProjects: Project[]) => {
     setProjects(newProjects);
-    localStorage.setItem('portfolio_projects', JSON.stringify(newProjects));
+    try {
+      localStorage.setItem('portfolio_projects', JSON.stringify(newProjects));
+      console.log('Projects saved to localStorage');
+    } catch (e) {
+      console.error('localStorage 저장 실패:', e);
+      alert('저장 실패! 이미지 용량이 너무 큽니다.\n외부 이미지 URL을 사용해주세요.');
+    }
     if (selectedProject) {
       const updatedSelected = newProjects.find(p => p.id === selectedProject.id);
       if (updatedSelected) setSelectedProject(updatedSelected);
@@ -108,12 +120,32 @@ const App: React.FC = () => {
 
   const handleSaveAwards = (newAwards: Award[]) => {
     setAwards(newAwards);
-    localStorage.setItem('portfolio_awards', JSON.stringify(newAwards));
+    try {
+      localStorage.setItem('portfolio_awards', JSON.stringify(newAwards));
+    } catch (e) {
+      console.error('localStorage 저장 실패 (awards):', e);
+      alert('수상내역 저장 실패! 용량 초과.');
+    }
   };
 
   const handleSavePlayground = (newItems: PlaygroundItem[]) => {
     setPlayground(newItems);
-    localStorage.setItem('portfolio_playground', JSON.stringify(newItems));
+    try {
+      localStorage.setItem('portfolio_playground', JSON.stringify(newItems));
+    } catch (e) {
+      console.error('localStorage 저장 실패 (playground):', e);
+      alert('Playground 저장 실패! 용량 초과.');
+    }
+  };
+
+  const handleSaveDesign = (newItems: DesignItem[]) => {
+    setDesignItems(newItems);
+    try {
+      localStorage.setItem('portfolio_design', JSON.stringify(newItems));
+    } catch (e) {
+      console.error('localStorage 저장 실패 (design):', e);
+      alert('Design 저장 실패! 용량 초과.');
+    }
   };
 
   // 데이터 초기화 함수 (constants.ts로 리셋)
@@ -121,9 +153,11 @@ const App: React.FC = () => {
     localStorage.removeItem('portfolio_projects');
     localStorage.removeItem('portfolio_awards');
     localStorage.removeItem('portfolio_playground');
+    localStorage.removeItem('portfolio_design');
     setProjects(INITIAL_PROJECTS);
     setAwards(INITIAL_AWARDS);
     setPlayground(INITIAL_PLAYGROUND);
+    setDesignItems(INITIAL_DESIGN);
   };
 
   return (
@@ -308,10 +342,10 @@ const App: React.FC = () => {
                </div>
                <Grid className="w-6 h-6 md:w-8 md:h-8 text-neutral-300" />
             </div>
-            
+
             <div className="columns-1 md:columns-3 gap-8 space-y-8">
               {playground.map((item) => (
-                <motion.div 
+                <motion.div
                   key={item.id}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -320,22 +354,22 @@ const App: React.FC = () => {
                 >
                    <div className="bg-neutral-100 rounded overflow-hidden">
                       {item.type === 'video' ? (
-                        <video 
-                          src={item.url} 
-                          autoPlay 
-                          muted 
-                          loop 
+                        <video
+                          src={item.url}
+                          autoPlay
+                          muted
+                          loop
                           playsInline
-                          className="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
+                          className="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                         />
                       ) : (
-                        <img 
-                          src={item.url} 
+                        <img
+                          src={item.url}
                           alt={item.caption}
-                          className="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-500 hover:scale-105 transform" 
+                          className="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-500 hover:scale-105 transform"
                         />
                       )}
-                      
+
                       {/* Hover Overlay */}
                       {item.caption && (
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
@@ -349,6 +383,9 @@ const App: React.FC = () => {
               ))}
             </div>
         </section>
+
+        {/* Design Portfolio Section */}
+        <DesignSection items={designItems} />
 
         {/* About Section */}
         <section id="about" className="relative z-10 px-6 md:px-20 py-32 bg-neutral-100">
@@ -433,6 +470,8 @@ const App: React.FC = () => {
         onSaveAwards={handleSaveAwards}
         playground={playground}
         onSavePlayground={handleSavePlayground}
+        designItems={designItems}
+        onSaveDesign={handleSaveDesign}
         onReset={handleResetToDefaults}
       />
       </div>

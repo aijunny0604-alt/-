@@ -11,6 +11,8 @@ interface ProjectCardProps {
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
@@ -38,6 +40,22 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, onClick }) =>
   const isYouTube = project.video && (project.video.includes('youtube.com') || project.video.includes('youtu.be'));
   const shouldPlayHoverVideo = project.video && !isYouTube;
 
+  // YouTube 썸네일 자동 추출
+  const getYouTubeThumbnail = (url: string): string | null => {
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+      /youtube\.com\/shorts\/([^&\n?#]+)/
+    ];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) return `https://img.youtube.com/vi/${match[1]}/maxresdefault.jpg`;
+    }
+    return null;
+  };
+
+  // 이미지 URL 결정: project.image가 없으면 YouTube 썸네일 사용
+  const imageUrl = project.image || (isYouTube ? getYouTubeThumbnail(project.video!) : null);
+
   useEffect(() => {
     if (videoRef.current && shouldPlayHoverVideo) {
       if (isHovered) {
@@ -53,6 +71,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, onClick }) =>
       }
     }
   }, [isHovered, shouldPlayHoverVideo]);
+
+  // Reset image error state when image URL changes
+  useEffect(() => {
+    setImageError(false);
+    setImageLoaded(false);
+    // 디버깅: 이미지 URL 확인
+    console.log(`ProjectCard[${project.title}] image URL:`, imageUrl?.substring(0, 100));
+  }, [imageUrl, project.title]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!imageContainerRef.current) return;
@@ -116,23 +142,42 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, onClick }) =>
           <motion.div
             className="w-full h-full overflow-hidden"
             initial={{ clipPath: 'inset(100% 0 0 0)' }}
-            whileInView={{ clipPath: 'inset(0% 0 0 0)' }}
-            viewport={{ once: true }}
+            animate={{ clipPath: 'inset(0% 0 0 0)' }}
             transition={{ duration: 1.2, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
           >
-            <motion.img
-              src={project.image}
-              alt={project.title}
-              className="w-full h-full object-cover will-change-transform"
-              animate={{
-                scale: isHovered && !shouldPlayHoverVideo ? 1.08 : 1,
-                filter: isHovered ? 'brightness(1.05)' : 'brightness(1)',
-              }}
-              transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
-            />
+            {/* Placeholder when no image or error */}
+            {(imageError || !imageUrl) && (
+              <div className="w-full h-full flex items-center justify-center bg-neutral-200">
+                <div className="text-center text-neutral-400">
+                  <svg className="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-sm">{project.title}</span>
+                </div>
+              </div>
+            )}
+            {imageUrl && !imageError && (
+              <img
+                src={imageUrl}
+                alt={project.title}
+                className="w-full h-full object-cover will-change-transform transition-all duration-700"
+                style={{
+                  transform: isHovered && !shouldPlayHoverVideo ? 'scale(1.08)' : 'scale(1)',
+                  filter: isHovered ? 'brightness(1.05)' : 'brightness(1)',
+                }}
+                onError={() => {
+                  console.error('Image load error:', project.title, imageUrl?.substring(0, 50));
+                  setImageError(true);
+                }}
+                onLoad={() => {
+                  console.log('Image loaded:', project.title);
+                  setImageLoaded(true);
+                }}
+              />
+            )}
           </motion.div>
 
-          {/* Video Overlay */}
+          {/* Video Overlay - Local Video */}
           {shouldPlayHoverVideo && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -150,6 +195,23 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, onClick }) =>
               />
             </motion.div>
           )}
+
+          {/* Video Overlay - YouTube */}
+          {isYouTube && isHovered && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0 z-10"
+            >
+              <iframe
+                src={`https://www.youtube.com/embed/${project.video!.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/)?.[1]}?autoplay=1&mute=1&loop=1&playlist=${project.video!.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/)?.[1]}&controls=0&showinfo=0&rel=0&modestbranding=1`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                className="w-full h-full"
+                style={{ border: 'none' }}
+              />
+            </motion.div>
+          )}
         </motion.div>
 
         {/* YouTube Indicator */}
@@ -162,13 +224,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, onClick }) =>
         {/* Gradient overlay on hover */}
         <motion.div
           className="absolute inset-0 z-20 pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{
-            opacity: isHovered ? 1 : 0,
-            background: isHovered
-              ? 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 50%)'
-              : 'transparent'
+          style={{
+            background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 50%)'
           }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isHovered ? 1 : 0 }}
           transition={{ duration: 0.4 }}
         />
 

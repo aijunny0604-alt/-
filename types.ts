@@ -31,6 +31,16 @@ export interface PlaygroundItem {
   caption?: string; // Optional caption
 }
 
+export interface DesignItem {
+  id: string;
+  title: string;
+  category: string; // 예: 'Poster', 'Album Cover', 'Brand Identity', 'Typography'
+  image: string;
+  year: string;
+  description?: string;
+  tools?: string[]; // 예: ['Photoshop', 'Illustrator', 'Figma']
+}
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'model';

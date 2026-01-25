@@ -1,4 +1,4 @@
-import { Project, Award, PlaygroundItem } from './types';
+import { Project, Award, PlaygroundItem, DesignItem } from './types';
 
 export const HERO_TEXT = {
   line1: "YEONG JUN",
@@ -91,6 +91,37 @@ export const PLAYGROUND_ITEMS: PlaygroundItem[] = [
   { id: '1', type: 'image', url: 'https://picsum.photos/600/800?random=100', caption: 'Behind the Scenes' },
   { id: '2', type: 'image', url: 'https://picsum.photos/800/600?random=101', caption: 'Test Shot' },
   { id: '3', type: 'image', url: 'https://picsum.photos/600/600?random=102', caption: 'Color Study' },
+];
+
+// 디자인 포트폴리오 (포스터, 앨범커버, 브랜딩 등)
+export const DESIGN_ITEMS: DesignItem[] = [
+  {
+    id: '1',
+    title: 'Event Poster',
+    category: 'Poster Design',
+    year: '2024',
+    image: 'https://picsum.photos/600/800?random=200',
+    description: '이벤트를 위한 시선을 사로잡는 포스터 디자인',
+    tools: ['Photoshop', 'Illustrator']
+  },
+  {
+    id: '2',
+    title: 'Album Artwork',
+    category: 'Album Cover',
+    year: '2024',
+    image: 'https://picsum.photos/600/600?random=201',
+    description: '음악의 분위기를 시각적으로 표현한 앨범 커버',
+    tools: ['Photoshop', 'Cinema 4D']
+  },
+  {
+    id: '3',
+    title: 'Brand Identity',
+    category: 'Branding',
+    year: '2024',
+    image: 'https://picsum.photos/600/800?random=202',
+    description: '브랜드의 핵심 가치를 담은 아이덴티티 디자인',
+    tools: ['Illustrator', 'Figma']
+  }
 ];
 
 export const ABOUT_TEXT = `

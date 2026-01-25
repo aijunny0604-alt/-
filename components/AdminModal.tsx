@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Trash2, Save, Code, Image as ImageIcon, Film, Upload, Trophy, Layers, Grid } from 'lucide-react';
-import { Project, ProjectMedia, Award, PlaygroundItem } from '../types';
+import { X, Plus, Trash2, Save, Code, Image as ImageIcon, Film, Upload, Trophy, Layers, Grid, Palette } from 'lucide-react';
+import { Project, ProjectMedia, Award, PlaygroundItem, DesignItem } from '../types';
 
 interface AdminModalProps {
   isOpen: boolean;
@@ -12,15 +12,18 @@ interface AdminModalProps {
   onSaveAwards: (awards: Award[]) => void;
   playground?: PlaygroundItem[];
   onSavePlayground?: (items: PlaygroundItem[]) => void;
+  designItems?: DesignItem[];
+  onSaveDesign?: (items: DesignItem[]) => void;
   onReset?: () => void;
 }
 
 // Helper type to track which field triggered the upload
-type UploadTarget = 
+type UploadTarget =
   | { type: 'main'; field: keyof Project }
   | { type: 'gallery'; index: number }
   | { type: 'award'; index: number; field: keyof Award }
-  | { type: 'playground'; index: number; field: keyof PlaygroundItem };
+  | { type: 'playground'; index: number; field: keyof PlaygroundItem }
+  | { type: 'design'; index: number; field: keyof DesignItem };
 
 const AdminModal: React.FC<AdminModalProps> = ({
   isOpen,
@@ -31,13 +34,16 @@ const AdminModal: React.FC<AdminModalProps> = ({
   onSaveAwards,
   playground = [],
   onSavePlayground,
+  designItems = [],
+  onSaveDesign,
   onReset
 }) => {
-  const [activeTab, setActiveTab] = useState<'projects' | 'awards' | 'playground'>('projects');
+  const [activeTab, setActiveTab] = useState<'projects' | 'awards' | 'playground' | 'design'>('projects');
 
   const [editingProjects, setEditingProjects] = useState<Project[]>(projects);
   const [editingAwards, setEditingAwards] = useState<Award[]>(awards);
   const [editingPlayground, setEditingPlayground] = useState<PlaygroundItem[]>(playground);
+  const [editingDesign, setEditingDesign] = useState<DesignItem[]>(designItems);
 
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(projects[0]?.id || null);
   const [showExport, setShowExport] = useState(false);
@@ -47,7 +53,8 @@ const AdminModal: React.FC<AdminModalProps> = ({
     setEditingProjects(projects);
     setEditingAwards(awards);
     setEditingPlayground(playground);
-  }, [projects, awards, playground]);
+    setEditingDesign(designItems);
+  }, [projects, awards, playground, designItems]);
 
   // File Upload State
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -135,12 +142,39 @@ const AdminModal: React.FC<AdminModalProps> = ({
     }
   };
 
+  // --- Design Handlers ---
+  const handleUpdateDesign = (index: number, field: keyof DesignItem, value: any) => {
+    const newItems = [...editingDesign];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setEditingDesign(newItems);
+  };
+
+  const addDesignItem = () => {
+    const newItem: DesignItem = {
+      id: Date.now().toString(),
+      title: '새 디자인',
+      category: 'Poster Design',
+      year: new Date().getFullYear().toString(),
+      image: 'https://via.placeholder.com/600x800',
+      description: '',
+      tools: []
+    };
+    setEditingDesign([newItem, ...editingDesign]);
+  };
+
+  const removeDesignItem = (index: number) => {
+    if (window.confirm('이 디자인을 삭제하시겠습니까?')) {
+      const newItems = editingDesign.filter((_, i) => i !== index);
+      setEditingDesign(newItems);
+    }
+  };
 
   // --- Save & Export ---
   const handleSave = () => {
     onSave(editingProjects);
     onSaveAwards(editingAwards);
     if(onSavePlayground) onSavePlayground(editingPlayground);
+    if(onSaveDesign) onSaveDesign(editingDesign);
     alert('저장되었습니다! (브라우저 메모리/캐시에 반영됨)');
   };
 
@@ -196,9 +230,8 @@ const AdminModal: React.FC<AdminModalProps> = ({
       handleUpdateAward(uploadTarget.index, uploadTarget.field, url);
     } else if (uploadTarget.type === 'playground') {
       handleUpdatePlayground(uploadTarget.index, uploadTarget.field, url);
-      // Auto-switch type based on file if possible (simple check)
-      // Since we don't know the exact mimetype here easily without extra logic, 
-      // users can manually switch the type select box.
+    } else if (uploadTarget.type === 'design') {
+      handleUpdateDesign(uploadTarget.index, uploadTarget.field, url);
     }
   };
 
@@ -206,7 +239,8 @@ const AdminModal: React.FC<AdminModalProps> = ({
     const projectsCode = `export const PROJECTS: Project[] = ${JSON.stringify(editingProjects, null, 2)};`;
     const awardsCode = `export const AWARDS: Award[] = ${JSON.stringify(editingAwards, null, 2)};`;
     const playgroundCode = `export const PLAYGROUND_ITEMS: PlaygroundItem[] = ${JSON.stringify(editingPlayground, null, 2)};`;
-    return `${projectsCode}\n\n${awardsCode}\n\n${playgroundCode}`;
+    const designCode = `export const DESIGN_ITEMS: DesignItem[] = ${JSON.stringify(editingDesign, null, 2)};`;
+    return `${projectsCode}\n\n${awardsCode}\n\n${playgroundCode}\n\n${designCode}`;
   };
 
   // --- Render Helpers ---
@@ -302,11 +336,17 @@ const AdminModal: React.FC<AdminModalProps> = ({
                   >
                     <Trophy className="w-3 h-3" /> Honors
                   </button>
-                  <button 
+                  <button
                      onClick={() => setActiveTab('playground')}
                      className={`flex-1 flex items-center justify-start px-4 gap-2 py-2 text-xs font-bold uppercase rounded-md transition-colors ${activeTab === 'playground' ? 'bg-white shadow-sm text-neutral-900' : 'text-neutral-500 hover:text-neutral-700'}`}
                   >
                     <Grid className="w-3 h-3" /> Playground
+                  </button>
+                  <button
+                     onClick={() => setActiveTab('design')}
+                     className={`flex-1 flex items-center justify-start px-4 gap-2 py-2 text-xs font-bold uppercase rounded-md transition-colors ${activeTab === 'design' ? 'bg-white shadow-sm text-neutral-900' : 'text-neutral-500 hover:text-neutral-700'}`}
+                  >
+                    <Palette className="w-3 h-3" /> Design
                   </button>
                 </div>
               </div>
@@ -369,11 +409,25 @@ const AdminModal: React.FC<AdminModalProps> = ({
                    <p className="text-xs text-neutral-500 mb-4 leading-relaxed">
                      Playground는 실험적인 이미지나 짧은 영상을 모아두는 공간입니다.
                    </p>
-                   <button 
+                   <button
                       className="w-full flex items-center justify-center gap-2 p-2 bg-neutral-200 text-neutral-800 hover:bg-neutral-300 rounded-md text-sm font-medium transition-colors mb-4"
                       onClick={addPlaygroundItem}
                     >
                       <Plus className="w-4 h-4" /> 아이템 추가
+                    </button>
+                </div>
+              )}
+
+              {activeTab === 'design' && (
+                <div className="flex-1 p-4 overflow-y-auto">
+                   <p className="text-xs text-neutral-500 mb-4 leading-relaxed">
+                     포스터, 앨범 커버, 브랜딩 등 그래픽 디자인 작업물을 관리합니다.
+                   </p>
+                   <button
+                      className="w-full flex items-center justify-center gap-2 p-2 bg-purple-100 text-purple-800 hover:bg-purple-200 rounded-md text-sm font-medium transition-colors mb-4"
+                      onClick={addDesignItem}
+                    >
+                      <Plus className="w-4 h-4" /> 디자인 추가
                     </button>
                 </div>
               )}
@@ -387,6 +441,7 @@ const AdminModal: React.FC<AdminModalProps> = ({
                   {activeTab === 'projects' && <><Layers className="w-5 h-5 text-neutral-400" /> 프로젝트 편집</>}
                   {activeTab === 'awards' && <><Trophy className="w-5 h-5 text-yellow-500" /> 수상 내역 편집</>}
                   {activeTab === 'playground' && <><Grid className="w-5 h-5 text-neutral-400" /> Playground 편집</>}
+                  {activeTab === 'design' && <><Palette className="w-5 h-5 text-purple-500" /> 디자인 편집</>}
                 </h3>
                 <div className="flex gap-2">
                   <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 text-sm font-medium transition-colors">
@@ -636,7 +691,7 @@ const AdminModal: React.FC<AdminModalProps> = ({
                       </div>
                     ))}
                   </div>
-                ) : (
+                ) : activeTab === 'playground' ? (
                   // --- PLAYGROUND EDITOR ---
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {editingPlayground.map((item, idx) => (
@@ -694,7 +749,7 @@ const AdminModal: React.FC<AdminModalProps> = ({
                     ))}
                     
                     {/* Add Button */}
-                    <button 
+                    <button
                       onClick={addPlaygroundItem}
                       className="aspect-square border-2 border-dashed border-neutral-300 rounded-lg flex flex-col items-center justify-center text-neutral-400 hover:border-neutral-500 hover:text-neutral-600 transition-colors"
                     >
@@ -702,7 +757,116 @@ const AdminModal: React.FC<AdminModalProps> = ({
                       <span className="text-sm font-medium">새 아이템 추가</span>
                     </button>
                   </div>
-                )}
+                ) : activeTab === 'design' ? (
+                  // --- DESIGN EDITOR ---
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {editingDesign.map((item, idx) => (
+                      <div key={idx} className="bg-neutral-50 rounded-xl p-5 border border-neutral-200 relative group">
+                        <button
+                          onClick={() => removeDesignItem(idx)}
+                          className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-sm text-neutral-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+
+                        {/* Image Preview */}
+                        <div className="aspect-[3/4] bg-neutral-200 rounded-lg overflow-hidden mb-4 relative flex items-center justify-center">
+                          {item.image ? (
+                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-neutral-400 text-xs">No Image</span>
+                          )}
+                          <button
+                            onClick={() => triggerUpload({ type: 'design', index: idx, field: 'image' })}
+                            className="absolute bottom-2 right-2 p-2 bg-neutral-900 text-white rounded shadow-md text-xs flex items-center gap-1 hover:bg-neutral-700"
+                          >
+                            <Upload className="w-3 h-3" /> 이미지 변경
+                          </button>
+                        </div>
+
+                        {/* Form Fields */}
+                        <div className="space-y-3">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase text-neutral-400">제목</label>
+                            <input
+                              className="w-full p-2 border border-neutral-300 rounded text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                              value={item.title}
+                              onChange={(e) => handleUpdateDesign(idx, 'title', e.target.value)}
+                              placeholder="디자인 제목"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold uppercase text-neutral-400">카테고리</label>
+                              <select
+                                className="w-full p-2 border border-neutral-300 rounded text-sm"
+                                value={item.category}
+                                onChange={(e) => handleUpdateDesign(idx, 'category', e.target.value)}
+                              >
+                                <option value="Poster Design">Poster Design</option>
+                                <option value="Album Cover">Album Cover</option>
+                                <option value="Branding">Branding</option>
+                                <option value="Typography">Typography</option>
+                                <option value="Illustration">Illustration</option>
+                                <option value="Social Media">Social Media</option>
+                                <option value="Other">Other</option>
+                              </select>
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold uppercase text-neutral-400">연도</label>
+                              <input
+                                className="w-full p-2 border border-neutral-300 rounded text-sm"
+                                value={item.year}
+                                onChange={(e) => handleUpdateDesign(idx, 'year', e.target.value)}
+                                placeholder="2024"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase text-neutral-400">설명</label>
+                            <textarea
+                              className="w-full p-2 border border-neutral-300 rounded text-sm h-16 resize-none"
+                              value={item.description || ''}
+                              onChange={(e) => handleUpdateDesign(idx, 'description', e.target.value)}
+                              placeholder="디자인에 대한 설명..."
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase text-neutral-400">사용 도구 (쉼표로 구분)</label>
+                            <input
+                              className="w-full p-2 border border-neutral-300 rounded text-sm font-mono"
+                              value={(item.tools || []).join(', ')}
+                              onChange={(e) => handleUpdateDesign(idx, 'tools', e.target.value.split(',').map(t => t.trim()).filter(Boolean))}
+                              placeholder="Photoshop, Illustrator, Figma"
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase text-neutral-400">이미지 URL</label>
+                            <input
+                              className="w-full p-2 border border-neutral-300 rounded text-xs font-mono"
+                              value={item.image}
+                              onChange={(e) => handleUpdateDesign(idx, 'image', e.target.value)}
+                              placeholder="https://..."
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Add Button */}
+                    <button
+                      onClick={addDesignItem}
+                      className="aspect-[3/4] border-2 border-dashed border-purple-300 rounded-xl flex flex-col items-center justify-center text-purple-400 hover:border-purple-500 hover:text-purple-600 transition-colors bg-purple-50/50"
+                    >
+                      <Plus className="w-8 h-8 mb-2" />
+                      <span className="text-sm font-medium">새 디자인 추가</span>
+                    </button>
+                  </div>
+                ) : null}
               </div>
             </div>
           </motion.div>
