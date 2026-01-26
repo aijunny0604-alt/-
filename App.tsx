@@ -277,24 +277,24 @@ const App: React.FC = () => {
 
         {/* Honors & Awards Section - Exhibition Style */}
         <section id="awards" className="relative z-10 bg-neutral-900 text-white px-6 md:px-20 py-32 rounded-t-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.2)]">
-           <div className="max-w-7xl mx-auto">
-             <div className="flex items-end gap-4 mb-20">
-                <Trophy className="w-8 h-8 md:w-12 md:h-12 text-yellow-500 mb-2" />
-                <h2 className="text-4xl md:text-8xl font-serif leading-none">Honor</h2>
+           <div className="max-w-full mx-auto">
+             <div className="flex items-end gap-4 mb-24">
+                <Trophy className="w-10 h-10 md:w-14 md:h-14 text-yellow-500 mb-2" />
+                <h2 className="text-5xl md:text-9xl font-serif leading-none">Honor</h2>
              </div>
 
              {awards.map((award, idx) => (
-               <div key={idx} className="flex flex-col md:flex-row gap-10 md:gap-20 items-stretch">
-                 
-                 {/* Video Display Column */}
-                 <motion.div 
+               <div key={idx} className="flex flex-col lg:flex-row gap-10 lg:gap-16 items-stretch mb-20 last:mb-0">
+
+                 {/* Video Display Column - Larger */}
+                 <motion.div
                    initial={{ opacity: 0, y: 50 }}
                    whileInView={{ opacity: 1, y: 0 }}
                    viewport={{ once: true }}
                    transition={{ duration: 0.8 }}
-                   className="w-full md:w-3/5"
+                   className="w-full lg:w-[65%]"
                  >
-                    <div className="relative aspect-video bg-neutral-800 rounded-sm overflow-hidden shadow-2xl group">
+                    <div className="relative aspect-[16/9] bg-neutral-800 rounded-lg overflow-hidden shadow-2xl group">
                       {award.video ? (
                          getYouTubeVideoId(award.video) ? (
                            <iframe
@@ -317,31 +317,31 @@ const App: React.FC = () => {
                       ) : (
                          <div className="w-full h-full flex items-center justify-center text-neutral-500 border border-neutral-700">No Media</div>
                       )}
-                      
+
                       {/* Floating Badge */}
-                      <div className="absolute top-0 left-0 bg-white text-neutral-900 px-6 py-3">
-                         <span className="font-bold text-sm tracking-widest uppercase">{award.result}</span>
+                      <div className="absolute top-0 left-0 bg-white text-neutral-900 px-6 py-4">
+                         <span className="font-bold text-base tracking-widest uppercase">{award.result}</span>
                       </div>
                     </div>
                  </motion.div>
 
-                 {/* Text Info Column */}
-                 <motion.div 
+                 {/* Text Info Column - Larger Text */}
+                 <motion.div
                    initial={{ opacity: 0, x: 50 }}
                    whileInView={{ opacity: 1, x: 0 }}
                    viewport={{ once: true }}
                    transition={{ duration: 0.8, delay: 0.2 }}
-                   className="w-full md:w-2/5 flex flex-col justify-center"
+                   className="w-full lg:w-[35%] flex flex-col justify-center"
                  >
                     <div className="mb-8">
-                      <span className="inline-block px-3 py-1 border border-white/30 rounded-full text-xs font-mono mb-4 text-neutral-300">
+                      <span className="inline-block px-4 py-2 border border-white/30 rounded-full text-sm font-mono mb-6 text-neutral-300">
                         {award.year} — {award.organization}
                       </span>
-                      <h3 className="text-3xl md:text-5xl font-serif leading-tight mb-6">
+                      <h3 className="text-4xl md:text-6xl font-serif leading-tight mb-8">
                         {award.title}
                       </h3>
-                      <div className="w-12 h-0.5 bg-yellow-500 mb-6"></div>
-                      <p className="text-neutral-400 leading-relaxed text-lg keep-all">
+                      <div className="w-16 h-1 bg-yellow-500 mb-8"></div>
+                      <p className="text-neutral-400 leading-relaxed text-xl keep-all">
                         {award.description}
                       </p>
                     </div>

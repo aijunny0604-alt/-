@@ -222,10 +222,6 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onClose }) => {
                       alt={`Gallery Still ${idx}`}
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-105 transform"
                     />
-                    {/* Fullscreen Icon Overlay */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                      <Maximize2 className="w-8 h-8 text-white drop-shadow-lg" />
-                    </div>
                   </motion.div>
                 ))}
               </div>
