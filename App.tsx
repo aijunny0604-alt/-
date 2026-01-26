@@ -208,7 +208,7 @@ const App: React.FC = () => {
       {/* Navigation / Header */}
       <header className="fixed top-0 w-full p-6 md:p-10 flex justify-between items-start z-40 mix-blend-difference text-white pointer-events-none">
         <div className="pointer-events-auto">
-          <span className="text-lg font-bold tracking-tight">PORTFOLIO®</span>
+          <span className="text-lg font-bold tracking-tight">YEONGJUN</span>
         </div>
         <div className="text-right hidden md:block">
           <p className="text-sm font-mono">SEOUL, KR</p>
