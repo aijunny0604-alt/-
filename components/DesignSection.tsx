@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DesignItem } from '../types';
-import { X, Palette, ArrowUpRight } from 'lucide-react';
+import { X, Palette, ArrowUpRight, Maximize2 } from 'lucide-react';
+import Lightbox from './Lightbox';
 
 interface DesignSectionProps {
   items: DesignItem[];
@@ -10,6 +11,25 @@ interface DesignSectionProps {
 const DesignSection: React.FC<DesignSectionProps> = ({ items }) => {
   const [selectedItem, setSelectedItem] = useState<DesignItem | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const designImages = items.map(item => item.image);
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const handleLightboxNext = () => {
+    setLightboxIndex((prev) => (prev + 1) % designImages.length);
+  };
+
+  const handleLightboxPrev = () => {
+    setLightboxIndex((prev) => (prev - 1 + designImages.length) % designImages.length);
+  };
 
   return (
     <section id="design" className="relative z-10 bg-neutral-50 px-6 md:px-20 py-32 border-t border-neutral-200">
@@ -149,12 +169,27 @@ const DesignSection: React.FC<DesignSectionProps> = ({ items }) => {
               </button>
 
               {/* Image */}
-              <div className="md:w-3/5 bg-neutral-100 flex items-center justify-center p-6">
+              <div className="md:w-3/5 bg-neutral-100 flex items-center justify-center p-6 relative group/img">
                 <img
                   src={selectedItem.image}
                   alt={selectedItem.title}
-                  className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-2xl"
+                  className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-2xl cursor-pointer"
+                  onClick={() => {
+                    const index = items.findIndex(i => i.id === selectedItem.id);
+                    openLightbox(index);
+                  }}
                 />
+                {/* Fullscreen button */}
+                <button
+                  onClick={() => {
+                    const index = items.findIndex(i => i.id === selectedItem.id);
+                    openLightbox(index);
+                  }}
+                  className="absolute bottom-8 right-8 p-3 bg-black/70 hover:bg-black text-white rounded-full opacity-0 group-hover/img:opacity-100 transition-all"
+                  title="전체화면으로 보기"
+                >
+                  <Maximize2 className="w-5 h-5" />
+                </button>
               </div>
 
               {/* Info */}
@@ -198,6 +233,16 @@ const DesignSection: React.FC<DesignSectionProps> = ({ items }) => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Lightbox for fullscreen viewing */}
+      <Lightbox
+        images={designImages}
+        currentIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        onNext={handleLightboxNext}
+        onPrev={handleLightboxPrev}
+      />
     </section>
   );
 };

@@ -9,6 +9,7 @@ import ChatWidget from './components/ChatWidget';
 import ProjectDetail from './components/ProjectDetail';
 import DesignSection from './components/DesignSection';
 import AdminModal from './components/AdminModal';
+import Lightbox from './components/Lightbox';
 import CustomCursor from './components/CustomCursor';
 import LoadingScreen from './components/LoadingScreen';
 import MagneticButton from './components/MagneticButton';
@@ -47,6 +48,25 @@ const App: React.FC = () => {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const lenisRef = useRef<Lenis | null>(null);
+
+  // Lightbox state for Playground
+  const [playgroundLightboxOpen, setPlaygroundLightboxOpen] = useState(false);
+  const [playgroundLightboxIndex, setPlaygroundLightboxIndex] = useState(0);
+
+  const playgroundImages = playground.filter(item => item.type === 'image').map(item => item.url);
+
+  const openPlaygroundLightbox = (index: number) => {
+    setPlaygroundLightboxIndex(index);
+    setPlaygroundLightboxOpen(true);
+  };
+
+  const handlePlaygroundLightboxNext = () => {
+    setPlaygroundLightboxIndex((prev) => (prev + 1) % playgroundImages.length);
+  };
+
+  const handlePlaygroundLightboxPrev = () => {
+    setPlaygroundLightboxIndex((prev) => (prev - 1 + playgroundImages.length) % playgroundImages.length);
+  };
 
   // Initialize Lenis smooth scroll
   useEffect(() => {
@@ -344,7 +364,9 @@ const App: React.FC = () => {
             </div>
 
             <div className="columns-1 md:columns-3 gap-8 space-y-8">
-              {playground.map((item) => (
+              {playground.map((item, index) => {
+                const imageIndex = playground.filter(p => p.type === 'image').findIndex(p => p.id === item.id);
+                return (
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -352,7 +374,10 @@ const App: React.FC = () => {
                   viewport={{ once: true }}
                   className="break-inside-avoid relative group"
                 >
-                   <div className="bg-neutral-100 rounded overflow-hidden">
+                   <div
+                     className={`bg-neutral-100 rounded overflow-hidden ${item.type === 'image' ? 'cursor-pointer' : ''}`}
+                     onClick={() => item.type === 'image' && openPlaygroundLightbox(imageIndex)}
+                   >
                       {item.type === 'video' ? (
                         <video
                           src={item.url}
@@ -371,16 +396,16 @@ const App: React.FC = () => {
                       )}
 
                       {/* Hover Overlay */}
-                      {item.caption && (
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+                         {item.caption && (
                            <span className="text-white text-xs font-mono uppercase tracking-widest bg-black/50 px-3 py-1 backdrop-blur-md rounded-full">
                              {item.caption}
                            </span>
-                        </div>
-                      )}
+                         )}
+                      </div>
                    </div>
                 </motion.div>
-              ))}
+              )})}
             </div>
         </section>
 
@@ -450,6 +475,16 @@ const App: React.FC = () => {
       </AnimatePresence>
 
       <ChatWidget />
+
+      {/* Playground Lightbox */}
+      <Lightbox
+        images={playgroundImages}
+        currentIndex={playgroundLightboxIndex}
+        isOpen={playgroundLightboxOpen}
+        onClose={() => setPlaygroundLightboxOpen(false)}
+        onNext={handlePlaygroundLightboxNext}
+        onPrev={handlePlaygroundLightboxPrev}
+      />
 
       {/* Admin Toggle Button */}
       <button 

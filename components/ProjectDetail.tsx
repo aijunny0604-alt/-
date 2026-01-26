@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, ArrowUpRight, Film, Image as ImageIcon } from 'lucide-react';
+import { X, ArrowUpRight, Film, Image as ImageIcon, Maximize2 } from 'lucide-react';
 import { Project } from '../types';
+import Lightbox from './Lightbox';
 
 interface ProjectDetailProps {
   project: Project;
@@ -9,6 +10,26 @@ interface ProjectDetailProps {
 }
 
 const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onClose }) => {
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+
+  // Open lightbox with specific images array and starting index
+  const openLightbox = (images: string[], index: number) => {
+    setLightboxImages(images);
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const handleLightboxNext = () => {
+    setLightboxIndex((prev) => (prev + 1) % lightboxImages.length);
+  };
+
+  const handleLightboxPrev = () => {
+    setLightboxIndex((prev) => (prev - 1 + lightboxImages.length) % lightboxImages.length);
+  };
+
   // Lock body scroll when open
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
@@ -132,7 +153,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onClose }) => {
         {/* Separated Gallery Sections */}
         <div className="space-y-32">
           
-          {/* Motion Section */}
+          {/* Video Section */}
           {galleryVideos.length > 0 && (
             <motion.section
               initial={{ opacity: 0, y: 30 }}
@@ -142,13 +163,13 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onClose }) => {
             >
               <div className="flex items-center gap-4 mb-10">
                 <Film className="w-5 h-5 text-neutral-400" />
-                <h3 className="text-2xl font-serif italic text-neutral-800">Motion</h3>
+                <h3 className="text-2xl font-serif italic text-neutral-800">Video</h3>
                 <div className="h-px bg-neutral-200 flex-1" />
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+              <div className="grid grid-cols-1 gap-10">
                 {galleryVideos.map((item, idx) => (
-                  <div key={`vid-${idx}`} className="w-full aspect-video bg-neutral-100 overflow-hidden rounded-sm">
+                  <div key={`vid-${idx}`} className="w-full aspect-[16/9] bg-neutral-100 overflow-hidden rounded-lg shadow-lg">
                      {isYouTube(item.url) ? (
                         <iframe 
                           src={getYouTubeEmbedUrl(item.url) || item.url}
@@ -193,13 +214,18 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onClose }) => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: idx * 0.1 }}
-                    className={`relative w-full ${idx % 3 === 0 ? 'md:col-span-2 aspect-[21/9]' : 'aspect-[4/3]'} bg-neutral-100 overflow-hidden group`}
+                    className={`relative w-full ${idx % 3 === 0 ? 'md:col-span-2 aspect-[21/9]' : 'aspect-[4/3]'} bg-neutral-100 overflow-hidden group cursor-pointer`}
+                    onClick={() => openLightbox(galleryImages.map(i => i.url), idx)}
                   >
                     <img
                       src={item.url}
                       alt={`Gallery Still ${idx}`}
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 hover:scale-105 transform"
                     />
+                    {/* Fullscreen Icon Overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <Maximize2 className="w-8 h-8 text-white drop-shadow-lg" />
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -216,6 +242,16 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onClose }) => {
            </button>
         </div>
       </div>
+
+      {/* Lightbox for fullscreen image viewing */}
+      <Lightbox
+        images={lightboxImages}
+        currentIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        onNext={handleLightboxNext}
+        onPrev={handleLightboxPrev}
+      />
     </motion.div>
   );
 };
