@@ -8,8 +8,8 @@ interface ChatWidgetProps {
   onOpenAdmin?: () => void;
 }
 
-// 비밀 명령어 설정 (원하는 대로 변경 가능)
-const SECRET_COMMANDS = ['/admin', '/관리자', 'yeongjun0604'];
+// 비밀 명령어 설정
+const SECRET_COMMANDS = ['/영준', '/관리자'];
 
 const ChatWidget: React.FC<ChatWidgetProps> = ({ onOpenAdmin }) => {
   const [isOpen, setIsOpen] = useState(false);
