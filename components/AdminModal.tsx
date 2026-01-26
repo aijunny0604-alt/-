@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Trash2, Save, Code, Image as ImageIcon, Film, Upload, Trophy, Layers, Grid, Palette } from 'lucide-react';
+import { X, Plus, Trash2, Save, Code, Image as ImageIcon, Film, Upload, Trophy, Layers, Grid, Palette, ChevronUp, ChevronDown } from 'lucide-react';
 import { Project, ProjectMedia, Award, PlaygroundItem, DesignItem } from '../types';
 
 interface AdminModalProps {
@@ -92,6 +92,15 @@ const AdminModal: React.FC<AdminModalProps> = ({
     handleUpdateProject('gallery', newGallery);
   };
 
+  const moveGalleryItem = (index: number, direction: 'up' | 'down') => {
+    if (!selectedProject || !selectedProject.gallery) return;
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= selectedProject.gallery.length) return;
+    const newGallery = [...selectedProject.gallery];
+    [newGallery[index], newGallery[newIndex]] = [newGallery[newIndex], newGallery[index]];
+    handleUpdateProject('gallery', newGallery);
+  };
+
   // --- Award Handlers ---
   const handleUpdateAward = (index: number, field: keyof Award, value: string) => {
     const newAwards = [...editingAwards];
@@ -142,6 +151,14 @@ const AdminModal: React.FC<AdminModalProps> = ({
     }
   };
 
+  const movePlaygroundItem = (index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= editingPlayground.length) return;
+    const newItems = [...editingPlayground];
+    [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
+    setEditingPlayground(newItems);
+  };
+
   // --- Design Handlers ---
   const handleUpdateDesign = (index: number, field: keyof DesignItem, value: any) => {
     const newItems = [...editingDesign];
@@ -167,6 +184,14 @@ const AdminModal: React.FC<AdminModalProps> = ({
       const newItems = editingDesign.filter((_, i) => i !== index);
       setEditingDesign(newItems);
     }
+  };
+
+  const moveDesignItem = (index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= editingDesign.length) return;
+    const newItems = [...editingDesign];
+    [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
+    setEditingDesign(newItems);
   };
 
   // --- Save & Export ---
@@ -252,6 +277,25 @@ const AdminModal: React.FC<AdminModalProps> = ({
 
       return (
         <div key={idx} className="flex gap-4 items-start p-4 bg-neutral-50 rounded border border-neutral-200">
+          {/* Move Buttons */}
+          <div className="flex flex-col gap-1">
+            <button
+              onClick={() => moveGalleryItem(idx, 'up')}
+              disabled={idx === 0}
+              className="p-1 bg-neutral-200 hover:bg-neutral-300 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              title="위로 이동"
+            >
+              <ChevronUp className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => moveGalleryItem(idx, 'down')}
+              disabled={idx === (selectedProject.gallery?.length || 0) - 1}
+              className="p-1 bg-neutral-200 hover:bg-neutral-300 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              title="아래로 이동"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          </div>
           <div className="w-32 aspect-video bg-neutral-200 rounded overflow-hidden flex-shrink-0 relative flex items-center justify-center border border-neutral-300">
             {item.type === 'video' ? (
                 item.url.includes('youtu') ? (
@@ -272,13 +316,13 @@ const AdminModal: React.FC<AdminModalProps> = ({
                 <span className="text-xs font-bold uppercase text-neutral-500">{type === 'video' ? 'Video' : 'Image'} Source</span>
               </div>
               <div className="flex gap-2">
-                <input 
+                <input
                   className="flex-1 p-2 border border-neutral-300 rounded text-sm font-mono focus:ring-2 focus:ring-neutral-900 outline-none"
                   value={item.url}
                   onChange={(e) => handleGalleryUpdate(idx, 'url', e.target.value)}
                   placeholder={type === 'video' ? "YouTube URL 또는 업로드..." : "이미지 URL 또는 업로드..."}
                 />
-                <button 
+                <button
                   onClick={() => triggerUpload({ type: 'gallery', index: idx })}
                   className="p-2 bg-neutral-200 hover:bg-neutral-300 rounded transition-colors"
                   title="미디어 업로드"
@@ -696,12 +740,36 @@ const AdminModal: React.FC<AdminModalProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {editingPlayground.map((item, idx) => (
                       <div key={idx} className="bg-neutral-50 rounded-lg p-4 border border-neutral-200 relative group">
-                        <button 
-                          onClick={() => removePlaygroundItem(idx)}
-                          className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-sm text-neutral-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {/* Action Buttons */}
+                        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                          <button
+                            onClick={() => movePlaygroundItem(idx, 'up')}
+                            disabled={idx === 0}
+                            className="p-2 bg-white rounded-full shadow-sm text-neutral-400 hover:text-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="앞으로 이동"
+                          >
+                            <ChevronUp className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => movePlaygroundItem(idx, 'down')}
+                            disabled={idx === editingPlayground.length - 1}
+                            className="p-2 bg-white rounded-full shadow-sm text-neutral-400 hover:text-neutral-700 disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="뒤로 이동"
+                          >
+                            <ChevronDown className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => removePlaygroundItem(idx)}
+                            className="p-2 bg-white rounded-full shadow-sm text-neutral-400 hover:text-red-500"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {/* Order Badge */}
+                        <div className="absolute top-2 left-2 w-6 h-6 bg-neutral-900 text-white rounded-full flex items-center justify-center text-xs font-bold z-10">
+                          {idx + 1}
+                        </div>
 
                         <div className="aspect-square bg-neutral-200 rounded overflow-hidden mb-3 relative flex items-center justify-center">
                           {item.url ? (
@@ -713,7 +781,7 @@ const AdminModal: React.FC<AdminModalProps> = ({
                           ) : (
                             <span className="text-neutral-400 text-xs">No Media</span>
                           )}
-                          <button 
+                          <button
                             onClick={() => triggerUpload({ type: 'playground', index: idx, field: 'url' })}
                             className="absolute bottom-2 right-2 p-2 bg-neutral-900 text-white rounded shadow-md text-xs flex items-center gap-1 hover:bg-neutral-700"
                           >
@@ -723,7 +791,7 @@ const AdminModal: React.FC<AdminModalProps> = ({
 
                         <div className="space-y-2">
                           <div className="flex gap-2">
-                            <select 
+                            <select
                               className="p-1 border border-neutral-300 rounded text-xs"
                               value={item.type}
                               onChange={(e) => handleUpdatePlayground(idx, 'type', e.target.value)}
@@ -731,14 +799,14 @@ const AdminModal: React.FC<AdminModalProps> = ({
                               <option value="image">Image</option>
                               <option value="video">Video</option>
                             </select>
-                            <input 
+                            <input
                               className="flex-1 p-1 border border-neutral-300 rounded text-xs font-mono"
                               value={item.url}
                               onChange={(e) => handleUpdatePlayground(idx, 'url', e.target.value)}
                               placeholder="URL..."
                             />
                           </div>
-                          <input 
+                          <input
                              className="w-full p-1 border border-neutral-300 rounded text-xs text-center"
                              value={item.caption || ''}
                              onChange={(e) => handleUpdatePlayground(idx, 'caption', e.target.value)}
@@ -747,7 +815,7 @@ const AdminModal: React.FC<AdminModalProps> = ({
                         </div>
                       </div>
                     ))}
-                    
+
                     {/* Add Button */}
                     <button
                       onClick={addPlaygroundItem}
@@ -762,12 +830,36 @@ const AdminModal: React.FC<AdminModalProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {editingDesign.map((item, idx) => (
                       <div key={idx} className="bg-neutral-50 rounded-xl p-5 border border-neutral-200 relative group">
-                        <button
-                          onClick={() => removeDesignItem(idx)}
-                          className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-sm text-neutral-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {/* Action Buttons */}
+                        <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                          <button
+                            onClick={() => moveDesignItem(idx, 'up')}
+                            disabled={idx === 0}
+                            className="p-2 bg-white rounded-full shadow-sm text-neutral-400 hover:text-purple-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="앞으로 이동"
+                          >
+                            <ChevronUp className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => moveDesignItem(idx, 'down')}
+                            disabled={idx === editingDesign.length - 1}
+                            className="p-2 bg-white rounded-full shadow-sm text-neutral-400 hover:text-purple-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="뒤로 이동"
+                          >
+                            <ChevronDown className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => removeDesignItem(idx)}
+                            className="p-2 bg-white rounded-full shadow-sm text-neutral-400 hover:text-red-500"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {/* Order Badge */}
+                        <div className="absolute top-3 left-3 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-bold z-10">
+                          {idx + 1}
+                        </div>
 
                         {/* Image Preview */}
                         <div className="aspect-[3/4] bg-neutral-200 rounded-lg overflow-hidden mb-4 relative flex items-center justify-center">
