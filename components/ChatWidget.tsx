@@ -1,10 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Sparkles } from 'lucide-react';
+import { MessageSquare, X, Send, Sparkles, Settings } from 'lucide-react';
 import { sendMessageToGemini } from '../services/geminiService';
 import { ChatMessage } from '../types';
 
-const ChatWidget: React.FC = () => {
+interface ChatWidgetProps {
+  onOpenAdmin?: () => void;
+}
+
+// 비밀 명령어 설정 (원하는 대로 변경 가능)
+const SECRET_COMMANDS = ['/admin', '/관리자', 'yeongjun0604'];
+
+const ChatWidget: React.FC<ChatWidgetProps> = ({ onOpenAdmin }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: '0', role: 'model', text: '안녕하세요! AI 어시스턴트입니다. 포트폴리오에 대해 궁금한 점을 물어보세요.', timestamp: Date.now() }
@@ -24,6 +31,39 @@ const ChatWidget: React.FC = () => {
   const handleSend = async () => {
     if (!inputText.trim() || isLoading) return;
 
+    // 비밀 명령어 체크
+    const trimmedInput = inputText.trim().toLowerCase();
+    if (SECRET_COMMANDS.some(cmd => trimmedInput === cmd.toLowerCase())) {
+      const secretMsg: ChatMessage = {
+        id: Date.now().toString(),
+        role: 'user',
+        text: '🔐 ***',
+        timestamp: Date.now()
+      };
+      setMessages(prev => [...prev, secretMsg]);
+      setInputText('');
+
+      // 관리자 모드 활성화 메시지
+      setTimeout(() => {
+        const adminMsg: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: 'model',
+          text: '🔓 관리자 인증 완료! 관리자 패널을 여는 중...',
+          timestamp: Date.now()
+        };
+        setMessages(prev => [...prev, adminMsg]);
+
+        // 관리자 패널 열기
+        setTimeout(() => {
+          if (onOpenAdmin) {
+            onOpenAdmin();
+            setIsOpen(false);
+          }
+        }, 800);
+      }, 500);
+      return;
+    }
+
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
@@ -38,7 +78,7 @@ const ChatWidget: React.FC = () => {
     try {
       const history = messages.map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.text}`);
       const responseText = await sendMessageToGemini(userMsg.text, history);
-      
+
       const botMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'model',

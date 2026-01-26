@@ -474,7 +474,7 @@ const App: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <ChatWidget />
+      <ChatWidget onOpenAdmin={() => setIsAdminOpen(true)} />
 
       {/* Playground Lightbox */}
       <Lightbox
