@@ -6,25 +6,21 @@ export const HERO_TEXT = {
   sub: "순간을 포착하고, 감동을 편집합니다. 사진과 영상으로 당신의 이야기를 전달하는 크리에이터입니다."
 };
 
-// [안내] 내 사진과 영상을 올리는 방법:
-// 1. 아래 image: 부분에 Flickr, YouTube 등의 URL을 직접 입력하세요.
-// 2. 또는 public/images 폴더에 파일을 넣고 '/images/파일명.jpg' 형태로 입력하세요.
-
 export const PROJECTS: Project[] = [
   {
     id: '1',
     title: 'Dynamic Moments',
     category: '포토그래피',
     year: '2024',
-    image: 'https://picsum.photos/800/600?random=1',  // [TODO] 드리프트 사진 URL
-    // video: '',  // 호버 시 재생할 영상 (선택사항)
+    image: '/images/53786435527_17433df4d8_b.jpg',
     description: '속도와 역동성을 담은 자동차 포토그래피. 드리프트의 긴장감과 아드레날린을 한 장의 사진에 담았습니다.',
     tags: ['Automotive', 'Action', 'Drift', 'Sports'],
     gallery: [
-      // [TODO] 갤러리 이미지/영상 URL 추가
-      { type: 'image', url: 'https://picsum.photos/800/600?random=10' },
-      { type: 'image', url: 'https://picsum.photos/800/800?random=11' },
-      { type: 'image', url: 'https://picsum.photos/800/500?random=12' }
+      { type: 'image', url: '/images/53786435532_71a623a182_b.jpg' },
+      { type: 'image', url: '/images/53787388841_ac27535c43_b.jpg' },
+      { type: 'image', url: '/images/53879429516_f2c37d8997_b.jpg' },
+      { type: 'image', url: '/images/53879842125_e8e6af958c_b.jpg' },
+      { type: 'image', url: '/images/53911971263_457184d4c0_b.jpg' }
     ]
   },
   {
@@ -32,14 +28,14 @@ export const PROJECTS: Project[] = [
     title: 'Product Showcase',
     category: '제품 촬영',
     year: '2024',
-    image: 'https://picsum.photos/800/800?random=2',  // [TODO] 제품 사진 URL
+    image: '/images/53928174748_96dd496038_b.jpg',
     description: '제품의 디테일과 질감을 극대화하는 상업 사진. 자동차 파츠부터 다양한 제품까지, 판매를 이끄는 이미지를 만듭니다.',
     tags: ['Commercial', 'Product', 'Lighting', 'Detail'],
     gallery: [
-      // [TODO] 갤러리 이미지 URL 추가
-      { type: 'image', url: 'https://picsum.photos/800/800?random=20' },
-      { type: 'image', url: 'https://picsum.photos/800/600?random=21' },
-      { type: 'image', url: 'https://picsum.photos/600/800?random=22' }
+      { type: 'image', url: '/images/53928308389_705ac179e1_b.jpg' },
+      { type: 'image', url: '/images/53935058229_c97521cb14_b.jpg' },
+      { type: 'image', url: '/images/53935571015_07ec914a87_b.jpg' },
+      { type: 'image', url: '/images/53937223321_2718ab9056_b.jpg' }
     ]
   },
   {
@@ -47,15 +43,14 @@ export const PROJECTS: Project[] = [
     title: 'Cinematic Films',
     category: '영상 편집',
     year: '2024',
-    image: 'https://picsum.photos/800/500?random=3',  // [TODO] 영상 썸네일 URL
-    // video: '',  // [TODO] YouTube URL 또는 영상 파일
+    image: '/images/53942097638_989f096918_b.jpg',
     description: '자동차의 역동적인 움직임부터 웨딩의 감동적인 순간까지. 다양한 장르를 아우르는 시네마틱 영상 편집.',
     tags: ['Cinematic', 'Wedding', 'Automotive', 'Color Grading'],
     gallery: [
-      // [TODO] YouTube 영상이나 이미지 URL 추가
-      { type: 'video', url: 'https://www.youtube.com/watch?v=YOUR_VIDEO_ID' },
-      { type: 'image', url: 'https://picsum.photos/800/450?random=30' },
-      { type: 'image', url: 'https://picsum.photos/800/450?random=31' }
+      { type: 'image', url: '/images/53964377422_4c0216b542_b.jpg' },
+      { type: 'image', url: '/images/53967565291_bce5a19f46_b.jpg' },
+      { type: 'image', url: '/images/53967766648_2cfd72e9cc_b.jpg' },
+      { type: 'image', url: '/images/53967969555_755b521cec_b.jpg' }
     ]
   },
   {
@@ -63,14 +58,14 @@ export const PROJECTS: Project[] = [
     title: 'AI Creations',
     category: 'AI 아트워크',
     year: '2024',
-    image: 'https://picsum.photos/800/800?random=4',  // [TODO] AI 이미지 URL
+    image: '/images/53968820042_ec311e50ec_b.jpg',
     description: 'AI 기술을 활용한 창의적인 이미지 생성. 상상력의 한계를 넘어서는 새로운 비주얼 아트.',
     tags: ['AI Art', 'Generative', 'Creative', 'Digital Art'],
     gallery: [
-      // [TODO] AI 생성 이미지 URL 추가
-      { type: 'image', url: 'https://picsum.photos/800/800?random=40' },
-      { type: 'image', url: 'https://picsum.photos/600/800?random=41' },
-      { type: 'image', url: 'https://picsum.photos/800/600?random=42' }
+      { type: 'image', url: '/images/53618095933_87aaf22e57_b.jpg' },
+      { type: 'image', url: '/images/53618095938_b261990a8f_b.jpg' },
+      { type: 'image', url: '/images/53618156348_73505003d3_b.jpg' },
+      { type: 'image', url: '/images/53618210828_888417f683_b.jpg' }
     ]
   }
 ];
@@ -87,20 +82,18 @@ export const AWARDS: Award[] = [
 ];
 
 export const PLAYGROUND_ITEMS: PlaygroundItem[] = [
-  // [TODO] 추가 작업물이나 실험적인 이미지들
-  { id: '1', type: 'image', url: 'https://picsum.photos/600/800?random=100', caption: 'Behind the Scenes' },
-  { id: '2', type: 'image', url: 'https://picsum.photos/800/600?random=101', caption: 'Test Shot' },
-  { id: '3', type: 'image', url: 'https://picsum.photos/600/600?random=102', caption: 'Color Study' },
+  { id: '1', type: 'image', url: '/images/53618395435_32f2431b97_b.jpg', caption: 'Behind the Scenes' },
+  { id: '2', type: 'image', url: '/images/53662149094_451ac4f80f_b.jpg', caption: 'Test Shot' },
+  { id: '3', type: 'image', url: '/images/53786435527_17433df4d8_b.jpg', caption: 'Color Study' },
 ];
 
-// 디자인 포트폴리오 (포스터, 앨범커버, 브랜딩 등)
 export const DESIGN_ITEMS: DesignItem[] = [
   {
     id: '1',
     title: 'Event Poster',
     category: 'Poster Design',
     year: '2024',
-    image: 'https://picsum.photos/600/800?random=200',
+    image: '/images/53618095933_87aaf22e57_b.jpg',
     description: '이벤트를 위한 시선을 사로잡는 포스터 디자인',
     tools: ['Photoshop', 'Illustrator']
   },
@@ -109,7 +102,7 @@ export const DESIGN_ITEMS: DesignItem[] = [
     title: 'Album Artwork',
     category: 'Album Cover',
     year: '2024',
-    image: 'https://picsum.photos/600/600?random=201',
+    image: '/images/53618156348_73505003d3_b.jpg',
     description: '음악의 분위기를 시각적으로 표현한 앨범 커버',
     tools: ['Photoshop', 'Cinema 4D']
   },
@@ -118,7 +111,7 @@ export const DESIGN_ITEMS: DesignItem[] = [
     title: 'Brand Identity',
     category: 'Branding',
     year: '2024',
-    image: 'https://picsum.photos/600/800?random=202',
+    image: '/images/53618210828_888417f683_b.jpg',
     description: '브랜드의 핵심 가치를 담은 아이덴티티 디자인',
     tools: ['Illustrator', 'Figma']
   }
