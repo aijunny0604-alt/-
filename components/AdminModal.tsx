@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Trash2, Save, Code, Image as ImageIcon, Film, Upload, Trophy, Layers, Grid, Palette, ChevronUp, ChevronDown } from 'lucide-react';
+import { X, Plus, Trash2, Save, Code, Image as ImageIcon, Film, Upload, Trophy, Layers, Grid, Palette, ChevronUp, ChevronDown, FolderOpen } from 'lucide-react';
 import { Project, ProjectMedia, Award, PlaygroundItem, DesignItem } from '../types';
+import ImagePicker from './ImagePicker';
 
 interface AdminModalProps {
   isOpen: boolean;
@@ -59,6 +60,11 @@ const AdminModal: React.FC<AdminModalProps> = ({
   // File Upload State
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadTarget, setUploadTarget] = useState<UploadTarget | null>(null);
+
+  // Image Picker State
+  const [showImagePicker, setShowImagePicker] = useState(false);
+  const [imagePickerTarget, setImagePickerTarget] = useState<UploadTarget | null>(null);
+  const [imagePickerCurrentImage, setImagePickerCurrentImage] = useState<string | undefined>(undefined);
 
   const selectedProject = editingProjects.find(p => p.id === selectedProjectId);
 
@@ -207,6 +213,20 @@ const AdminModal: React.FC<AdminModalProps> = ({
     setShowExport(true);
   };
 
+  // --- Image Picker Logic ---
+  const openImagePicker = (target: UploadTarget, currentImage?: string) => {
+    setImagePickerTarget(target);
+    setImagePickerCurrentImage(currentImage);
+    setShowImagePicker(true);
+  };
+
+  const handleImagePickerSelect = (url: string) => {
+    if (!imagePickerTarget) return;
+    applyFileUrl(url, imagePickerTarget);
+    setShowImagePicker(false);
+    setImagePickerTarget(null);
+  };
+
   // --- Upload Logic ---
   const triggerUpload = (target: UploadTarget) => {
     setUploadTarget(target);
@@ -244,19 +264,20 @@ const AdminModal: React.FC<AdminModalProps> = ({
     e.target.value = '';
   };
 
-  const applyFileUrl = (url: string) => {
-    if (!uploadTarget) return;
+  const applyFileUrl = (url: string, target?: UploadTarget | null) => {
+    const currentTarget = target || uploadTarget;
+    if (!currentTarget) return;
 
-    if (uploadTarget.type === 'main') {
-      handleUpdateProject(uploadTarget.field, url);
-    } else if (uploadTarget.type === 'gallery') {
-      handleGalleryUpdate(uploadTarget.index, 'url', url);
-    } else if (uploadTarget.type === 'award') {
-      handleUpdateAward(uploadTarget.index, uploadTarget.field, url);
-    } else if (uploadTarget.type === 'playground') {
-      handleUpdatePlayground(uploadTarget.index, uploadTarget.field, url);
-    } else if (uploadTarget.type === 'design') {
-      handleUpdateDesign(uploadTarget.index, uploadTarget.field, url);
+    if (currentTarget.type === 'main') {
+      handleUpdateProject(currentTarget.field, url);
+    } else if (currentTarget.type === 'gallery') {
+      handleGalleryUpdate(currentTarget.index, 'url', url);
+    } else if (currentTarget.type === 'award') {
+      handleUpdateAward(currentTarget.index, currentTarget.field, url);
+    } else if (currentTarget.type === 'playground') {
+      handleUpdatePlayground(currentTarget.index, currentTarget.field, url);
+    } else if (currentTarget.type === 'design') {
+      handleUpdateDesign(currentTarget.index, currentTarget.field, url);
     }
   };
 
@@ -322,10 +343,19 @@ const AdminModal: React.FC<AdminModalProps> = ({
                   onChange={(e) => handleGalleryUpdate(idx, 'url', e.target.value)}
                   placeholder={type === 'video' ? "YouTube URL..." : "이미지 URL..."}
                 />
+                {type === 'image' && (
+                  <button
+                    onClick={() => openImagePicker({ type: 'gallery', index: idx }, item.url)}
+                    className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
+                    title="갤러리에서 선택"
+                  >
+                    <FolderOpen className="w-4 h-4" />
+                  </button>
+                )}
                 <button
                   onClick={() => triggerUpload({ type: 'gallery', index: idx })}
                   className="p-2 bg-neutral-200 hover:bg-neutral-300 rounded transition-colors"
-                  title="미디어 업로드"
+                  title="직접 업로드"
                 >
                   <Upload className="w-4 h-4" />
                 </button>
@@ -574,12 +604,19 @@ const AdminModal: React.FC<AdminModalProps> = ({
                                 className="flex-1 min-w-0 p-2 border border-neutral-300 rounded focus:ring-2 focus:ring-neutral-900 outline-none text-xs md:text-sm font-mono truncate"
                                 value={selectedProject.image}
                                 onChange={(e) => handleUpdateProject('image', e.target.value)}
-                                placeholder="URL 또는 업로드..."
+                                placeholder="URL 또는 갤러리에서 선택..."
                               />
-                              <button 
+                              <button
+                                onClick={() => openImagePicker({ type: 'main', field: 'image' }, selectedProject.image)}
+                                className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded"
+                                title="갤러리에서 선택"
+                              >
+                                <FolderOpen className="w-5 h-5" />
+                              </button>
+                              <button
                                 onClick={() => triggerUpload({ type: 'main', field: 'image' })}
                                 className="p-2 bg-neutral-200 hover:bg-neutral-300 rounded"
-                                title="이미지 업로드"
+                                title="직접 업로드"
                               >
                                 <Upload className="w-5 h-5" />
                               </button>
@@ -790,12 +827,22 @@ const AdminModal: React.FC<AdminModalProps> = ({
                           ) : (
                             <span className="text-neutral-400 text-xs">No Media</span>
                           )}
-                          <button
-                            onClick={() => triggerUpload({ type: 'playground', index: idx, field: 'url' })}
-                            className="absolute bottom-2 right-2 p-2 bg-neutral-900 text-white rounded shadow-md text-xs flex items-center gap-1 hover:bg-neutral-700"
-                          >
-                             <Upload className="w-3 h-3" /> 변경
-                          </button>
+                          <div className="absolute bottom-2 right-2 flex gap-1">
+                            {item.type === 'image' && (
+                              <button
+                                onClick={() => openImagePicker({ type: 'playground', index: idx, field: 'url' }, item.url)}
+                                className="p-2 bg-blue-500 text-white rounded shadow-md text-xs flex items-center gap-1 hover:bg-blue-600"
+                              >
+                                <FolderOpen className="w-3 h-3" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => triggerUpload({ type: 'playground', index: idx, field: 'url' })}
+                              className="p-2 bg-neutral-900 text-white rounded shadow-md text-xs flex items-center gap-1 hover:bg-neutral-700"
+                            >
+                               <Upload className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
 
                         <div className="space-y-2">
@@ -877,12 +924,20 @@ const AdminModal: React.FC<AdminModalProps> = ({
                           ) : (
                             <span className="text-neutral-400 text-xs">No Image</span>
                           )}
-                          <button
-                            onClick={() => triggerUpload({ type: 'design', index: idx, field: 'image' })}
-                            className="absolute bottom-2 right-2 p-2 bg-neutral-900 text-white rounded shadow-md text-xs flex items-center gap-1 hover:bg-neutral-700"
-                          >
-                            <Upload className="w-3 h-3" /> 이미지 변경
-                          </button>
+                          <div className="absolute bottom-2 right-2 flex gap-1">
+                            <button
+                              onClick={() => openImagePicker({ type: 'design', index: idx, field: 'image' }, item.image)}
+                              className="p-2 bg-blue-500 text-white rounded shadow-md text-xs flex items-center gap-1 hover:bg-blue-600"
+                            >
+                              <FolderOpen className="w-3 h-3" /> 선택
+                            </button>
+                            <button
+                              onClick={() => triggerUpload({ type: 'design', index: idx, field: 'image' })}
+                              className="p-2 bg-neutral-900 text-white rounded shadow-md text-xs flex items-center gap-1 hover:bg-neutral-700"
+                            >
+                              <Upload className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
 
                         {/* Form Fields */}
@@ -972,6 +1027,17 @@ const AdminModal: React.FC<AdminModalProps> = ({
             </div>
           </motion.div>
           
+          {/* Image Picker Modal */}
+          <ImagePicker
+            isOpen={showImagePicker}
+            onClose={() => {
+              setShowImagePicker(false);
+              setImagePickerTarget(null);
+            }}
+            onSelect={handleImagePickerSelect}
+            currentImage={imagePickerCurrentImage}
+          />
+
           {/* Export Code Modal Overlay */}
           {showExport && (
              <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-[110] p-10">
