@@ -164,6 +164,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index, onClick }) =>
                 style={{
                   transform: isHovered && !shouldPlayHoverVideo ? 'scale(1.08)' : 'scale(1)',
                   filter: isHovered ? 'brightness(1.05)' : 'brightness(1)',
+                  objectPosition: project.imagePosition || 'center',
                 }}
                 onError={() => {
                   console.error('Image load error:', project.title, imageUrl?.substring(0, 50));

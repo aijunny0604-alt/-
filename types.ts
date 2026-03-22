@@ -8,6 +8,7 @@ export interface Project {
   title: string;
   category: string;
   image: string;
+  imagePosition?: string; // object-position 값 (예: 'center', 'top', 'bottom')
   video?: string;
   year: string;
   description: string;

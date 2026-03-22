@@ -621,8 +621,49 @@ const AdminModal: React.FC<AdminModalProps> = ({
                                 <Upload className="w-5 h-5" />
                               </button>
                             </div>
-                            <div className="aspect-[4/3] bg-neutral-100 rounded overflow-hidden border border-neutral-200">
-                                <img src={selectedProject.image} className="w-full h-full object-cover" alt="미리보기" />
+                            <div
+                              className="relative aspect-[4/3] bg-neutral-100 rounded overflow-hidden border-2 border-blue-300 cursor-crosshair group"
+                              onClick={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+                                const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+                                handleUpdateProject('imagePosition', `${x}% ${y}%`);
+                              }}
+                            >
+                                <img src={selectedProject.image} className="w-full h-full object-cover" style={{ objectPosition: selectedProject.imagePosition || 'center' }} alt="미리보기" />
+                                {/* 포커스 포인트 표시 */}
+                                <div
+                                  className="absolute w-6 h-6 border-2 border-red-500 bg-red-500/30 rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none shadow-lg"
+                                  style={{
+                                    left: (() => {
+                                      const pos = selectedProject.imagePosition || 'center';
+                                      if (pos.includes('%')) return pos.split(' ')[0];
+                                      if (pos.includes('left')) return '0%';
+                                      if (pos.includes('right')) return '100%';
+                                      return '50%';
+                                    })(),
+                                    top: (() => {
+                                      const pos = selectedProject.imagePosition || 'center';
+                                      if (pos.includes('%')) return pos.split(' ')[1] || '50%';
+                                      if (pos.includes('top')) return '0%';
+                                      if (pos.includes('bottom')) return '100%';
+                                      return '50%';
+                                    })(),
+                                  }}
+                                />
+                                {/* 안내 오버레이 */}
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                  <span className="text-white text-xs font-bold bg-black/60 px-3 py-1 rounded-full">클릭하여 포커스 위치 설정</span>
+                                </div>
+                            </div>
+                            <div className="mt-1 flex items-center justify-between">
+                              <span className="text-[10px] text-neutral-400">포커스: {selectedProject.imagePosition || 'center'}</span>
+                              <button
+                                onClick={() => handleUpdateProject('imagePosition', 'center')}
+                                className="text-[10px] text-blue-500 hover:text-blue-700"
+                              >
+                                중앙으로 초기화
+                              </button>
                             </div>
                           </div>
                           <div className="space-y-2">

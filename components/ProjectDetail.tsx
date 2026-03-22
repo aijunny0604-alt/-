@@ -146,6 +146,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({ project, onClose }) => {
               src={project.image}
               alt={project.title}
               className="w-full h-full object-cover"
+              style={{ objectPosition: project.imagePosition || 'center' }}
             />
           )}
         </div>
