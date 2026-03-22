@@ -4,6 +4,20 @@ AI 아티스트 이영준의 포트폴리오 웹사이트
 
 **Live**: https://aijunny0604-alt.github.io/yeongjun-portfolio/
 
+## Documentation
+
+| 문서 | 설명 |
+|------|------|
+| [01-hero.md](docs/01-hero.md) | Hero 섹션 (타이포그래피, 패럴랙스) |
+| [02-selected-works.md](docs/02-selected-works.md) | 프로젝트 카드 & 상세 페이지 |
+| [03-honor.md](docs/03-honor.md) | 수상 내역 섹션 |
+| [04-video-reel.md](docs/04-video-reel.md) | YouTube 영상 캐러셀 |
+| [05-playground.md](docs/05-playground.md) | Playground 아카이브 |
+| [06-design.md](docs/06-design.md) | 디자인 포트폴리오 |
+| [07-admin-panel.md](docs/07-admin-panel.md) | 관리자 패널 |
+| [08-interactions.md](docs/08-interactions.md) | 인터랙션 & UX |
+| [09-tech-stack.md](docs/09-tech-stack.md) | 기술 스택 & 아키텍처 |
+
 ## Features
 
 ### Sections
