@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
 import Lenis from 'lenis';
-import { PROJECTS as INITIAL_PROJECTS, ABOUT_TEXT, SOCIAL_LINKS, AWARDS as INITIAL_AWARDS, PLAYGROUND_ITEMS as INITIAL_PLAYGROUND, DESIGN_ITEMS as INITIAL_DESIGN } from './constants';
-import { Project, Award, PlaygroundItem, DesignItem } from './types';
+import { PROJECTS as INITIAL_PROJECTS, ABOUT_TEXT, SOCIAL_LINKS, AWARDS as INITIAL_AWARDS, PLAYGROUND_ITEMS as INITIAL_PLAYGROUND, DESIGN_ITEMS as INITIAL_DESIGN, VIDEO_ITEMS as INITIAL_VIDEOS } from './constants';
+import { Project, Award, PlaygroundItem, DesignItem, VideoItem } from './types';
 import Hero from './components/Hero';
 import ProjectCard from './components/ProjectCard';
 import ChatWidget from './components/ChatWidget';
 import ProjectDetail from './components/ProjectDetail';
 import DesignSection from './components/DesignSection';
+import VideoSection from './components/VideoSection';
 import AdminModal from './components/AdminModal';
 import Lightbox from './components/Lightbox';
 import CustomCursor from './components/CustomCursor';
@@ -44,6 +45,7 @@ const App: React.FC = () => {
   const [awards, setAwards] = useState<Award[]>(INITIAL_AWARDS);
   const [playground, setPlayground] = useState<PlaygroundItem[]>(INITIAL_PLAYGROUND);
   const [designItems, setDesignItems] = useState<DesignItem[]>(INITIAL_DESIGN);
+  const [videoItems, setVideoItems] = useState<VideoItem[]>(INITIAL_VIDEOS);
 
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -112,6 +114,10 @@ const App: React.FC = () => {
     if (savedDesign) {
       try { setDesignItems(JSON.parse(savedDesign)); } catch (e) { console.error(e); }
     }
+    const savedVideos = localStorage.getItem('portfolio_videos');
+    if (savedVideos) {
+      try { setVideoItems(JSON.parse(savedVideos)); } catch (e) { console.error(e); }
+    }
 
     const timer = setInterval(() => {
       const date = new Date();
@@ -168,16 +174,28 @@ const App: React.FC = () => {
     }
   };
 
+  const handleSaveVideos = (newItems: VideoItem[]) => {
+    setVideoItems(newItems);
+    try {
+      localStorage.setItem('portfolio_videos', JSON.stringify(newItems));
+    } catch (e) {
+      console.error('localStorage 저장 실패 (videos):', e);
+      alert('Video 저장 실패! 용량 초과.');
+    }
+  };
+
   // 데이터 초기화 함수 (constants.ts로 리셋)
   const handleResetToDefaults = () => {
     localStorage.removeItem('portfolio_projects');
     localStorage.removeItem('portfolio_awards');
     localStorage.removeItem('portfolio_playground');
     localStorage.removeItem('portfolio_design');
+    localStorage.removeItem('portfolio_videos');
     setProjects(INITIAL_PROJECTS);
     setAwards(INITIAL_AWARDS);
     setPlayground(INITIAL_PLAYGROUND);
     setDesignItems(INITIAL_DESIGN);
+    setVideoItems(INITIAL_VIDEOS);
   };
 
   return (
@@ -351,6 +369,9 @@ const App: React.FC = () => {
            </div>
         </section>
         
+        {/* Video Reel Section */}
+        <VideoSection items={videoItems} />
+
         {/* Playground / Archive Section */}
         <section id="playground" className="relative z-10 bg-cream px-6 md:px-20 py-32 border-t border-neutral-200">
             <div className="flex justify-between items-end mb-16">
@@ -522,6 +543,8 @@ const App: React.FC = () => {
         onSavePlayground={handleSavePlayground}
         designItems={designItems}
         onSaveDesign={handleSaveDesign}
+        videoItems={videoItems}
+        onSaveVideos={handleSaveVideos}
         onReset={handleResetToDefaults}
       />
       </div>

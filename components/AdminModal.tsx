@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Trash2, Save, Code, Image as ImageIcon, Film, Upload, Trophy, Layers, Grid, Palette, ChevronUp, ChevronDown, FolderOpen } from 'lucide-react';
-import { Project, ProjectMedia, Award, PlaygroundItem, DesignItem } from '../types';
+import { Project, ProjectMedia, Award, PlaygroundItem, DesignItem, VideoItem } from '../types';
 import ImagePicker from './ImagePicker';
 
 interface AdminModalProps {
@@ -15,6 +15,8 @@ interface AdminModalProps {
   onSavePlayground?: (items: PlaygroundItem[]) => void;
   designItems?: DesignItem[];
   onSaveDesign?: (items: DesignItem[]) => void;
+  videoItems?: VideoItem[];
+  onSaveVideos?: (items: VideoItem[]) => void;
   onReset?: () => void;
 }
 
@@ -37,14 +39,17 @@ const AdminModal: React.FC<AdminModalProps> = ({
   onSavePlayground,
   designItems = [],
   onSaveDesign,
+  videoItems = [],
+  onSaveVideos,
   onReset
 }) => {
-  const [activeTab, setActiveTab] = useState<'projects' | 'awards' | 'playground' | 'design'>('projects');
+  const [activeTab, setActiveTab] = useState<'projects' | 'awards' | 'playground' | 'design' | 'videos'>('projects');
 
   const [editingProjects, setEditingProjects] = useState<Project[]>(projects);
   const [editingAwards, setEditingAwards] = useState<Award[]>(awards);
   const [editingPlayground, setEditingPlayground] = useState<PlaygroundItem[]>(playground);
   const [editingDesign, setEditingDesign] = useState<DesignItem[]>(designItems);
+  const [editingVideos, setEditingVideos] = useState<VideoItem[]>(videoItems);
 
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(projects[0]?.id || null);
   const [showExport, setShowExport] = useState(false);
@@ -55,7 +60,8 @@ const AdminModal: React.FC<AdminModalProps> = ({
     setEditingAwards(awards);
     setEditingPlayground(playground);
     setEditingDesign(designItems);
-  }, [projects, awards, playground, designItems]);
+    setEditingVideos(videoItems);
+  }, [projects, awards, playground, designItems, videoItems]);
 
   // File Upload State
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -206,6 +212,7 @@ const AdminModal: React.FC<AdminModalProps> = ({
     onSaveAwards(editingAwards);
     if(onSavePlayground) onSavePlayground(editingPlayground);
     if(onSaveDesign) onSaveDesign(editingDesign);
+    if(onSaveVideos) onSaveVideos(editingVideos);
     alert('저장되었습니다! (브라우저 메모리/캐시에 반영됨)');
   };
 
@@ -422,6 +429,12 @@ const AdminModal: React.FC<AdminModalProps> = ({
                   >
                     <Palette className="w-3 h-3" /> <span className="hidden sm:inline">Design</span>
                   </button>
+                  <button
+                     onClick={() => setActiveTab('videos')}
+                     className={`flex-1 flex items-center justify-center md:justify-start px-3 md:px-4 gap-1 md:gap-2 py-2 text-[10px] md:text-xs font-bold uppercase rounded-md transition-colors whitespace-nowrap ${activeTab === 'videos' ? 'bg-white shadow-sm text-neutral-900' : 'text-neutral-500 hover:text-neutral-700'}`}
+                  >
+                    <Film className="w-3 h-3" /> <span className="hidden sm:inline">Video</span>
+                  </button>
                 </div>
               </div>
 
@@ -517,6 +530,22 @@ const AdminModal: React.FC<AdminModalProps> = ({
                     </button>
                 </div>
               )}
+
+              {activeTab === 'videos' && (
+                <div className="flex-1 p-4 overflow-y-auto">
+                   <p className="text-xs text-neutral-500 mb-4 leading-relaxed">
+                     YouTube 영상 포트폴리오를 관리합니다.
+                   </p>
+                   <button
+                      className="w-full flex items-center justify-center gap-2 p-2 bg-red-100 text-red-800 hover:bg-red-200 rounded-md text-sm font-medium transition-colors mb-4"
+                      onClick={() => {
+                        setEditingVideos(prev => [...prev, { id: String(Date.now()), title: '새 영상', url: '', description: '' }]);
+                      }}
+                    >
+                      <Plus className="w-4 h-4" /> 영상 추가
+                    </button>
+                </div>
+              )}
             </div>
 
             {/* Main Editor Area */}
@@ -528,6 +557,7 @@ const AdminModal: React.FC<AdminModalProps> = ({
                   {activeTab === 'awards' && <><Trophy className="w-4 h-4 md:w-5 md:h-5 text-yellow-500" /> <span className="hidden sm:inline">수상 내역</span> 편집</>}
                   {activeTab === 'playground' && <><Grid className="w-4 h-4 md:w-5 md:h-5 text-neutral-400" /> Playground</>}
                   {activeTab === 'design' && <><Palette className="w-4 h-4 md:w-5 md:h-5 text-purple-500" /> <span className="hidden sm:inline">디자인</span> 편집</>}
+                  {activeTab === 'videos' && <><Film className="w-4 h-4 md:w-5 md:h-5 text-red-500" /> <span className="hidden sm:inline">영상</span> 편집</>}
                 </h3>
                 <div className="flex gap-1 md:gap-2">
                   {onReset && (
@@ -1061,6 +1091,94 @@ const AdminModal: React.FC<AdminModalProps> = ({
                     >
                       <Plus className="w-8 h-8 mb-2" />
                       <span className="text-sm font-medium">새 디자인 추가</span>
+                    </button>
+                  </div>
+                ) : activeTab === 'videos' ? (
+                  // --- VIDEO EDITOR ---
+                  <div className="space-y-4">
+                    {editingVideos.map((item, idx) => (
+                      <div key={item.id} className="bg-neutral-50 rounded-xl p-5 border border-neutral-200 relative group">
+                        <button
+                          onClick={() => setEditingVideos(prev => prev.filter((_, i) => i !== idx))}
+                          className="absolute top-3 right-3 p-2 text-neutral-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+
+                        <div className="absolute top-3 left-3 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                          {idx + 1}
+                        </div>
+
+                        <div className="space-y-3 mt-6">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase text-neutral-400">제목</label>
+                            <input
+                              className="w-full p-2 border border-neutral-300 rounded text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                              value={item.title}
+                              onChange={(e) => {
+                                const updated = [...editingVideos];
+                                updated[idx] = { ...updated[idx], title: e.target.value };
+                                setEditingVideos(updated);
+                              }}
+                              placeholder="영상 제목"
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase text-neutral-400">YouTube URL</label>
+                            <input
+                              className="w-full p-2 border border-neutral-300 rounded text-sm font-mono focus:ring-2 focus:ring-red-500 outline-none"
+                              value={item.url}
+                              onChange={(e) => {
+                                const updated = [...editingVideos];
+                                updated[idx] = { ...updated[idx], url: e.target.value };
+                                setEditingVideos(updated);
+                              }}
+                              placeholder="https://youtu.be/... 또는 https://youtube.com/watch?v=..."
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold uppercase text-neutral-400">설명</label>
+                            <input
+                              className="w-full p-2 border border-neutral-300 rounded text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                              value={item.description || ''}
+                              onChange={(e) => {
+                                const updated = [...editingVideos];
+                                updated[idx] = { ...updated[idx], description: e.target.value };
+                                setEditingVideos(updated);
+                              }}
+                              placeholder="영상에 대한 간단한 설명"
+                            />
+                          </div>
+
+                          {/* YouTube Preview */}
+                          {item.url && (() => {
+                            const match = item.url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+                            const videoId = match ? match[1] : null;
+                            return videoId ? (
+                              <div className="aspect-video bg-neutral-200 rounded overflow-hidden">
+                                <img
+                                  src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+                                  alt="thumbnail"
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ) : null;
+                          })()}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Add Button */}
+                    <button
+                      onClick={() => {
+                        setEditingVideos(prev => [...prev, { id: String(Date.now()), title: '새 영상', url: '', description: '' }]);
+                      }}
+                      className="w-full py-8 border-2 border-dashed border-red-300 rounded-xl flex flex-col items-center justify-center text-red-400 hover:border-red-500 hover:text-red-600 transition-colors bg-red-50/50"
+                    >
+                      <Plus className="w-8 h-8 mb-2" />
+                      <span className="text-sm font-medium">새 영상 추가</span>
                     </button>
                   </div>
                 ) : null}

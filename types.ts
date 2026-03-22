@@ -42,6 +42,13 @@ export interface DesignItem {
   tools?: string[]; // 예: ['Photoshop', 'Illustrator', 'Figma']
 }
 
+export interface VideoItem {
+  id: string;
+  title: string;
+  url: string; // YouTube URL
+  description?: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'model';

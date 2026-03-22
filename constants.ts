@@ -1,4 +1,4 @@
-import { Project, Award, PlaygroundItem, DesignItem } from './types';
+import { Project, Award, PlaygroundItem, DesignItem, VideoItem } from './types';
 
 export const HERO_TEXT = {
   line1: "YEONG JUN",
@@ -115,6 +115,55 @@ export const DESIGN_ITEMS: DesignItem[] = [
     description: '브랜드의 핵심 가치를 담은 아이덴티티 디자인',
     tools: ['Illustrator', 'Figma']
   }
+];
+
+export const VIDEO_ITEMS: VideoItem[] = [
+  {
+    id: '1',
+    title: '매경미디어 AI 영상 광고·숏폼 공모전 우수상',
+    url: 'https://youtu.be/m-AkFwNKQ0g',
+    description: 'AI 기술을 활용한 영상 광고 작품',
+  },
+  {
+    id: '2',
+    title: 'Video Work #1',
+    url: 'https://youtu.be/fjNR4wO0FJs',
+  },
+  {
+    id: '3',
+    title: 'Video Work #2',
+    url: 'https://youtu.be/w2A6CQx3a_4',
+  },
+  {
+    id: '4',
+    title: 'Video Work #3',
+    url: 'https://youtu.be/NPQOn0qgf2c',
+  },
+  {
+    id: '5',
+    title: 'Video Work #4',
+    url: 'https://youtu.be/QGGO0S3SYt8',
+  },
+  {
+    id: '6',
+    title: 'Video Work #5',
+    url: 'https://youtu.be/rlQ0LoJlDGo',
+  },
+  {
+    id: '7',
+    title: 'Video Work #6',
+    url: 'https://youtu.be/DRTQZL__0V4',
+  },
+  {
+    id: '8',
+    title: 'Video Work #7',
+    url: 'https://youtu.be/i4ApsMQyN_w',
+  },
+  {
+    id: '9',
+    title: 'Video Work #8',
+    url: 'https://youtu.be/1JiDGFv7uzg',
+  },
 ];
 
 export const ABOUT_TEXT = `
