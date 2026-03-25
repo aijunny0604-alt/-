@@ -9,6 +9,7 @@ import ChatWidget from './components/ChatWidget';
 import ProjectDetail from './components/ProjectDetail';
 import DesignSection from './components/DesignSection';
 import DevSection from './components/DevSection';
+import AiStatement from './components/AiStatement';
 import VideoSection from './components/VideoSection';
 import AdminModal from './components/AdminModal';
 import Lightbox from './components/Lightbox';
@@ -480,6 +481,24 @@ const App: React.FC = () => {
           </div>
         </section>
         
+        {/* AI Statement */}
+        <AiStatement lenisRef={lenisRef} />
+
+        {/* Closing - 여운 */}
+        <section className="relative z-10 bg-black py-32 md:py-48">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.5 }}
+            className="text-center px-6"
+          >
+            <p className="text-neutral-600 text-sm md:text-base font-mono tracking-wider">
+              도구는 계속 바뀌지만, 만드는 사람의 감각은 남습니다.
+            </p>
+          </motion.div>
+        </section>
+
         {/* Footer / Contact */}
         <footer className="relative z-10 px-6 md:px-20 py-32 bg-neutral-900 text-white overflow-hidden">
            <div className="relative z-10">

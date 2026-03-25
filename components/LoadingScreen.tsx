@@ -29,7 +29,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
     return () => clearInterval(timer);
   }, [onComplete]);
 
-  const words = ['Creative', 'Developer', 'Portfolio'];
+  const words = ['Photo · Video', 'AI · Development', 'YEONGJUN LEE'];
 
   return (
     <AnimatePresence>
@@ -83,7 +83,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
             className="absolute bottom-10 left-10 text-xs font-mono text-neutral-600 hidden md:block"
           >
             SEOUL, KOREA<br />
-            ©2025
+            ©2026
           </motion.div>
         </motion.div>
       )}
